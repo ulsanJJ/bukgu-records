@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>북구에 물어본 기록 | 박재진</title>
+<meta name="description" content="울산 북구 현안을 행정기관에 묻고 받은 답을 그대로 공개합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{
+  --paper:#F4F5F1; --sheet:#FFFFFF; --ink:#1D2433; --muted:#667085; --rule:#CDD2C8;
+  --s-asked:#A9791C; --s-answered:#2B4C7E; --s-none:#B8322A; --s-appeal:#B8322A; --s-resolved:#3C6E47; --s-silent:#6B6B6B;
+  --focus:#2B4C7E;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:16px;line-height:1.65;word-break:keep-all}
+a{color:var(--s-answered)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+header{max-width:1200px;margin:0 auto;padding:40px 20px 24px;border-bottom:2px solid var(--ink)}
+header h1{font-size:clamp(28px,5vw,44px);line-height:1.2;margin:0 0 10px;letter-spacing:-0.02em;font-weight:700}
+header p{margin:0;max-width:62ch;color:var(--muted)}
+#tally{margin-top:14px;font-weight:500;color:var(--ink)}
+
+main{max-width:1200px;margin:0 auto;padding:20px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr);gap:28px;align-items:start}
+@media (max-width:860px){main{grid-template-columns:1fr}#mapwrap{position:static!important;order:-1}#map{height:300px!important}}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.filters select,.filters input{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:4px}
+.filters input{flex:1 1 160px}
+
+/* 접수 대장 */
+.ledger{background:var(--sheet);border:1px solid var(--rule)}
+.ledger-head,.row{display:grid;grid-template-columns:92px minmax(0,1fr) 96px;gap:12px;padding:12px 16px;align-items:center}
+.ledger-head{font-size:13px;color:var(--muted);border-bottom:1px solid var(--ink)}
+.row{border-bottom:1px solid var(--rule);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;font:inherit;color:inherit}
+.row:hover{background:#F8F9F6}
+.row:last-child{border-bottom:0}
+.row .date{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.row .t{font-weight:500;line-height:1.4}
+.row .sub{font-size:13px;color:var(--muted);margin-top:2px}
+.ico{margin-right:6px}
+.pin{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;border:3px solid var(--c);font-size:17px;line-height:1;box-shadow:0 2px 6px rgba(29,36,51,.3)}
+.pin.approx{border-style:dashed}
+.empty{padding:28px 16px;color:var(--muted)}
+
+/* 도장: 이 사이트의 유일한 강조 요소 */
+.stamp{justify-self:end;display:inline-grid;place-items:center;width:78px;height:78px;border-radius:50%;border:2.5px solid currentColor;color:var(--c);font-size:13px;font-weight:700;line-height:1.2;text-align:center;padding:6px;transform:rotate(-8deg);box-shadow:inset 0 0 0 3px var(--sheet),inset 0 0 0 4.5px currentColor;opacity:.88}
+.stamp.sm{width:64px;height:64px;font-size:12px}
+
+#mapwrap{position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
+#map{height:520px;border:1px solid var(--rule);background:#E9ECE5}
+.mapnote{font-size:13px;color:var(--muted);margin-top:8px}
+
+.principles{max-width:1200px;margin:8px auto 0;padding:24px 20px 48px;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;font-size:14px;color:var(--muted)}
+.principles h2{font-size:15px;color:var(--ink);margin:0 0 4px}
+.principles p{margin:0}
+
+/* 상세 */
+dialog{border:0;padding:0;max-width:680px;width:calc(100% - 24px);max-height:88vh;background:var(--sheet);color:var(--ink);box-shadow:0 12px 40px rgba(29,36,51,.25)}
+dialog::backdrop{background:rgba(29,36,51,.45)}
+.d-head{display:flex;gap:16px;align-items:flex-start;padding:24px 24px 16px;border-bottom:2px solid var(--ink);position:relative}
+.d-head h2{margin:0;font-size:22px;line-height:1.35;flex:1}
+.close{position:absolute;top:8px;right:10px;font:inherit;font-size:22px;background:none;border:0;cursor:pointer;color:var(--muted);padding:4px 8px}
+.d-body{padding:8px 24px 24px;overflow:auto}
+.meta{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:14px;margin:14px 0}
+.meta dt{color:var(--muted)}
+.meta dd{margin:0}
+.sec{margin-top:20px}
+.sec h3{font-size:14px;margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid var(--rule)}
+.sec p{margin:0;max-width:65ch;white-space:pre-line}
+.sec.opinion{background:#F6F4EE;padding:12px 14px;border-left:3px solid var(--ink)}
+.sec.opinion h3{border:0;padding:0}
+.todo{color:var(--muted);font-style:italic}
+.docs a{display:block}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>북구에 물어본 기록</h1>
+  <p>박재진이 울산 북구 현안을 행정기관에 묻고 받은 답을 그대로 공개합니다. 누가 결정하고, 누가 비용을 내고, 무엇이 아직 답해지지 않았는지 남겨 둡니다.</p>
+  <p id="tally"></p>
+</header>
+
+<main>
+  <section aria-label="질의 목록">
+    <div class="filters">
+      <select id="fStatus" aria-label="진행 상태"><option value="">전체 상태</option></select>
+      <select id="fCat" aria-label="분야"><option value="">전체 분야</option></select>
+      <select id="fChannel" aria-label="질의 경로"><option value="">전체 경로</option></select>
+      <select id="fDong" aria-label="동"><option value="">전체 동</option></select>
+      <input id="fText" type="search" placeholder="제목·기관 검색" aria-label="검색">
+    </div>
+    <div class="ledger">
+      <div class="ledger-head"><span>질의일</span><span>무엇을 물었나</span><span style="justify-self:end">상태</span></div>
+      <div id="list"></div>
+    </div>
+  </section>
+
+  <aside id="mapwrap" aria-label="지도">
+    <div id="map" role="img" aria-label="질의 위치 지도"></div>
+    <p class="mapnote" id="mapnote"></p>
+  </aside>
+</main>
+
+<section class="principles" aria-label="기록 원칙">
+  <div><h2>받은 답과 제 평가를 나눕니다</h2><p>기관이 회신한 내용은 "받은 답"에, 제 해석은 "박재진의 평가"에 따로 적습니다.</p></div>
+  <div><h2>제가 당사자면 먼저 밝힙니다</h2><p>제가 요청자이거나 이해관계가 있는 사안은 항목마다 표시합니다.</p></div>
+  <div><h2>원문을 붙입니다</h2><p>회신 문서는 담당자 개인정보를 가린 뒤 원문 그대로 첨부합니다.</p></div>
+  <div><h2>제보 받습니다</h2><p id="contact">연락처 입력 전</p></div>
+</section>
+
+<dialog id="detail" aria-labelledby="dTitle"></dialog>
+
+<script>
+/* ============================================================
+   데이터: 이 배열만 고치면 사이트가 바뀝니다.
+   값을 모르면 빈 문자열("")로 두세요. 화면에 "입력 전"으로 표시됩니다.
+   lat/lng를 모르면 null. 대략 위치면 approx:true (점선 표시).
+   ============================================================ */
+const SITE = {
+  contact: "" // 예: "010-0000-0000 / 이메일"
+};
+
+const RECORDS = [
+  {
+    id: "2026-ihwa-bus",
+    category: "edu",
+    title: "이화중학교 한시 통학버스, 언제까지 운영하나",
+    status: "answered",
+    channel: "정보공개청구",
+    agencies: ["울산광역시교육청"],
+    askedAt: "",            // 청구일 입력
+    answeredAt: "",
+    receiptNo: "",
+    dong: "중산동 일대",
+    lat: 35.620, lng: 129.332, approx: true, // 산업로 1631 기준 대략 위치 — 정확한 좌표로 교체
+    question: "한시 통학버스의 운영 종료 시점, 신입생(1학년) 지원 여부, 학년별 탑승 가능 여부.",
+    answer: "",             // 회신 요지 입력
+    opinion: "",
+    next: "",
+    via: null,              // 예: { name: "홍길동", role: "북구의원", note: "후속 협의 중" }
+    myRole: "요청자",
+    docs: []                // 예: [{ label: "교육청 회신(개인정보 가림)", url: "docs/ihwa-reply.pdf" }]
+  },
+  {
+    id: "2026-ulsan-flhs",
+    category: "edu",
+    title: "울산외고 국제외국어고 전환, 근거 자료는 어디에 있나",
+    status: "appeal",
+    channel: "정보공개청구",
+    agencies: ["울산광역시교육청"],
+    askedAt: "2026-08-20",
+    answeredAt: "",
+    receiptNo: "17374665",
+    dong: "",
+    lat: null, lng: null, approx: false,
+    question: "국제외국어고 전환 관련 6개 항목 정보공개 청구.",
+    answer: "6개 항목 전부 정보부존재 결정. 사유는 교육청이 보유한 정보가 없다는 것.",
+    opinion: "",
+    next: "부존재 결정에 대해 이의신청 진행.",
+    via: null,
+    myRole: "요청자",
+    docs: []
+  },
+  {
+    id: "2026-wholesale-market",
+    category: "economy",
+    title: "농수산물도매시장 율현지구 이전과 북구 제2도매시장, 어떻게 되나",
+    status: "answered",
+    channel: "국민신문고",
+    agencies: ["울산광역시", "울산 북구청", "울산도시공사"],
+    askedAt: "",
+    answeredAt: "",
+    receiptNo: "",
+    dong: "",
+    lat: null, lng: null, approx: false,
+    question: "",           // 3개 기관에 각각 물은 내용 입력
+    answer: "",
+    opinion: "",
+    next: "",
+    via: null,
+    myRole: "요청자",
+    docs: []
+  },
+  {
+    id: "2026-gas-meter",
+    category: "housing",
+    title: "공동주택 특수계량기 교체비, 누가 내야 하나",
+    status: "asked",
+    channel: "면담",
+    agencies: ["경동도시가스"],
+    askedAt: "",
+    answeredAt: "",
+    receiptNo: "",
+    dong: "북구 전체",
+    lat: null, lng: null, approx: false,
+    question: "특수계량기 재검정·부속품 교체와 설치 비용을 도시가스사 공급비용에 반영할 수 있는가. 재검정품은 무상 교체, 신품을 원하는 단지는 자부담하는 방식.",
+    answer: "",
+    opinion: "",
+    next: "",
+    via: null,
+    myRole: "제안자",
+    docs: []
+  }
+];
+
+/* 분야: 필요하면 여기서 추가·수정 */
+const CATEGORY = {
+  traffic: { icon: "🚌", label: "교통·주차" },
+  edu:     { icon: "🏫", label: "교육·보육" },
+  housing: { icon: "🏘️", label: "주거·생활" },
+  economy: { icon: "🏪", label: "상권·경제" },
+  industry:{ icon: "🏭", label: "산업·노동" },
+  env:     { icon: "🌳", label: "환경·공원" },
+  safety:  { icon: "🚨", label: "안전" },
+  admin:   { icon: "📋", label: "행정·예산" }
+};
+const cat = r => CATEGORY[r.category] || { icon: "📌", label: "기타" };
+
+const STATUS = {
+  asked:       { label: "질의 중",   color: "var(--s-asked)" },
+  answered:    { label: "답변 받음", color: "var(--s-answered)" },
+  nonexistent: { label: "정보 없음\n회신", color: "var(--s-none)" },
+  appeal:      { label: "이의\n신청",  color: "var(--s-appeal)" },
+  silent:      { label: "답 없음",   color: "var(--s-silent)" },
+  resolved:    { label: "해결",      color: "var(--s-resolved)" }
+};
+
+/* ============================================================ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const orTodo = v => v ? esc(v) : '<span class="todo">입력 전</span>';
+const stamp = (s, cls="") => { const st = STATUS[s] || STATUS.asked; return `<span class="stamp ${cls}" style="--c:${st.color}">${esc(st.label).replace("\n","<br>")}</span>`; };
+
+function fillSelect(el, values){ [...new Set(values.filter(Boolean))].forEach(v => el.insertAdjacentHTML("beforeend", `<option>${esc(v)}</option>`)); }
+Object.entries(STATUS).forEach(([k,v]) => $("#fStatus").insertAdjacentHTML("beforeend", `<option value="${k}">${esc(v.label.replace("\n"," "))}</option>`));
+Object.entries(CATEGORY).forEach(([k,v]) => $("#fCat").insertAdjacentHTML("beforeend", `<option value="${k}">${v.icon} ${esc(v.label)}</option>`));
+fillSelect($("#fChannel"), RECORDS.map(r => r.channel));
+fillSelect($("#fDong"), RECORDS.map(r => r.dong));
+
+const answeredCount = RECORDS.filter(r => ["answered","nonexistent","appeal","resolved"].includes(r.status)).length;
+const resolvedCount = RECORDS.filter(r => r.status === "resolved").length;
+$("#tally").textContent = `지금까지 ${RECORDS.length}건을 물었고, ${answeredCount}건의 회신을 받았고, ${resolvedCount}건이 해결됐습니다.`;
+$("#contact").textContent = SITE.contact || "연락처 입력 전";
+
+function filtered(){
+  const k = $("#fCat").value, s = $("#fStatus").value, c = $("#fChannel").value, d = $("#fDong").value, q = $("#fText").value.trim();
+  return RECORDS.filter(r =>
+    (!k || r.category === k) && (!s || r.status === s) && (!c || r.channel === c) && (!d || r.dong === d) &&
+    (!q || (r.title + r.agencies.join(" ")).includes(q)));
+}
+
+function renderList(){
+  const rows = filtered();
+  $("#list").innerHTML = rows.length ? rows.map(r => `
+    <button class="row" data-id="${esc(r.id)}">
+      <span class="date">${r.askedAt ? esc(r.askedAt.replaceAll("-",".")) : "날짜 입력 전"}</span>
+      <span><span class="t"><span class="ico" title="${esc(cat(r).label)}" aria-label="${esc(cat(r).label)}">${cat(r).icon}</span>${esc(r.title)}</span>
+        <span class="sub" style="display:block">${esc(cat(r).label)} / ${esc(r.agencies.join(", "))} / ${esc(r.channel)}${r.via ? ` / ${esc(r.via.name)} ${esc(r.via.role)} 통해 해결 중` : ""}</span></span>
+      ${stamp(r.status,"sm")}
+    </button>`).join("") : `<p class="empty">조건에 맞는 기록이 없습니다. 필터를 바꿔 보세요.</p>`;
+  renderMarkers(rows);
+}
+
+function openDetail(id){
+  const r = RECORDS.find(x => x.id === id); if(!r) return;
+  const d = $("#detail");
+  d.innerHTML = `
+    <div class="d-head">
+      <h2 id="dTitle">${esc(r.title)}</h2>${stamp(r.status)}
+      <button class="close" aria-label="닫기">×</button>
+    </div>
+    <div class="d-body">
+      <dl class="meta">
+        <dt>분야</dt><dd>${cat(r).icon} ${esc(cat(r).label)}</dd>
+        <dt>질의 경로</dt><dd>${orTodo(r.channel)}</dd>
+        <dt>대상 기관</dt><dd>${orTodo(r.agencies.join(", "))}</dd>
+        <dt>질의일</dt><dd>${orTodo(r.askedAt)}</dd>
+        <dt>회신일</dt><dd>${orTodo(r.answeredAt)}</dd>
+        <dt>접수번호</dt><dd>${orTodo(r.receiptNo)}</dd>
+        <dt>위치</dt><dd>${orTodo(r.dong)}${r.approx ? " (대략 위치)" : ""}</dd>
+        <dt>저와의 관계</dt><dd>${orTodo(r.myRole)}</dd>
+        <dt>해결 경로</dt><dd>${r.via ? `${esc(r.via.name)} ${esc(r.via.role)}${r.via.note ? ` — ${esc(r.via.note)}` : ""}` : '<span class="todo">연결된 의원 없음</span>'}</dd>
+      </dl>
+      <div class="sec"><h3>무엇을 물었나</h3><p>${orTodo(r.question)}</p></div>
+      <div class="sec"><h3>받은 답</h3><p>${orTodo(r.answer)}</p></div>
+      ${r.opinion ? `<div class="sec opinion"><h3>박재진의 평가</h3><p>${esc(r.opinion)}</p></div>` : ""}
+      <div class="sec"><h3>다음 할 일</h3><p>${orTodo(r.next)}</p></div>
+      <div class="sec docs"><h3>원문</h3>${r.docs.length ? r.docs.map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a>`).join("") : '<p class="todo">첨부 전</p>'}</div>
+    </div>`;
+  d.querySelector(".close").onclick = () => d.close();
+  d.showModal();
+}
+$("#detail").addEventListener("click", e => { if(e.target.id === "detail") e.target.close(); });
+$("#list").addEventListener("click", e => { const b = e.target.closest(".row"); if(b) openDetail(b.dataset.id); });
+["#fCat","#fStatus","#fChannel","#fDong","#fText"].forEach(s => $(s).addEventListener("input", renderList));
+
+/* 지도 */
+let map, layer;
+function initMap(){
+  if(typeof L === "undefined"){ $("#map").innerHTML = '<p class="empty">지도를 불러오지 못했습니다. 인터넷 연결을 확인하세요.</p>'; return; }
+  map = L.map("map", { scrollWheelZoom:false }).setView([35.595, 129.365], 12); // 울산 북구 대략 중심
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom:18, attribution:"&copy; OpenStreetMap" }).addTo(map);
+  layer = L.layerGroup().addTo(map);
+}
+function renderMarkers(rows){
+  if(!map) return;
+  layer.clearLayers();
+  const css = getComputedStyle(document.documentElement);
+  rows.filter(r => r.lat != null && r.lng != null).forEach(r => {
+    const col = css.getPropertyValue(STATUS[r.status].color.slice(4,-1)).trim();
+    const icon = L.divIcon({ className:"", iconSize:[34,34], iconAnchor:[17,17],
+      html:`<span class="pin${r.approx ? " approx" : ""}" style="--c:${col}">${cat(r).icon}</span>` });
+    L.marker([r.lat, r.lng], { icon, title:r.title, keyboard:true })
+      .bindTooltip(`${cat(r).label} / ${r.title}`).on("click", () => openDetail(r.id)).addTo(layer);
+  });
+  const noPin = rows.filter(r => r.lat == null).length;
+  $("#mapnote").innerHTML = `아이콘은 분야, 테두리 색은 진행 상태입니다. 점선 테두리는 대략 위치입니다.` + (noPin ? ` 지도에 없는 ${noPin}건은 북구 전체에 해당하거나 위치 입력 전입니다.` : "");
+}
+
+initMap();
+renderList();
+</script>
+</body>
+</html>
