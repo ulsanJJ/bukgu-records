@@ -80,6 +80,10 @@ button{font:inherit;color:inherit}
 .report a{color:var(--ink)}
 .report .x{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--panel);cursor:pointer;line-height:1}
 
+.coordbox{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:600;background:#1B2230;color:#fff;border-radius:12px;padding:10px 14px;display:flex;gap:12px;align-items:center;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.3);max-width:calc(100% - 32px);flex-wrap:wrap}
+.coordbox span{font-variant-numeric:tabular-nums;user-select:all}
+.coordbox button{background:#fff;color:#1B2230;border:0;border-radius:8px;padding:5px 12px;font-weight:700;cursor:pointer}
+@media (max-width:900px){.coordbox{top:auto;bottom:16px}}
 /* 지도 핀 */
 .mk{position:relative;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:#fff;border:3px solid var(--c);box-shadow:0 3px 10px rgba(27,34,48,.35);transition:transform .15s}
 .mk:hover{transform:scale(1.12)}
@@ -407,6 +411,7 @@ $("#detail").addEventListener("click", e => { if(e.target.id === "detail") e.tar
 
 /* 지도 */
 let map, pins, dongLayer;
+const COORDS = new URLSearchParams(location.search).has("coords");
 const BASE = { color:"#2447B8", weight:2.5, opacity:.85, fillColor:"#2447B8", fillOpacity:.03 };
 const HOT  = { weight:4, opacity:1, fillOpacity:.16 };
 function initMap(){
@@ -415,18 +420,29 @@ function initMap(){
   L.control.zoom({ position:"bottomright" }).addTo(map);
   L.tileLayer("https://tiles.osm.kr/hot/{z}/{x}/{y}.png", { maxZoom:18,
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> 기여자, OSM Korea / 행정동 경계 vuski/admdongkor' }).addTo(map);
-  dongLayer = L.geoJSON(DONGS, { style: () => BASE, onEachFeature: (f, l) => {
+  dongLayer = L.geoJSON(DONGS, { interactive: !COORDS, style: () => BASE, onEachFeature: (f, l) => {
+    if(COORDS) return;
     const name = f.properties.name;
     l.bindTooltip(() => `<b>${esc(name)}</b> 기록 ${RECORDS.filter(r => dongOf(r) === name).length}건`, { sticky:true });
     l.on({ mouseover: () => l.setStyle(HOT), mouseout: () => { if(F.dong !== name) l.setStyle(BASE); }, click: () => setF("dong", name) });
   }}).addTo(map);
   pins = L.layerGroup().addTo(map);
   map.fitBounds(dongLayer.getBounds(), { padding:[20,20] });
-  if(new URLSearchParams(location.search).has("coords")){
+  if(COORDS){
+    const box = document.createElement("div");
+    box.className = "coordbox";
+    box.innerHTML = '<b>좌표 찍기 모드</b><span id="cbText">지도에서 위치를 클릭하세요</span><button type="button" id="cbCopy" hidden>복사</button>';
+    $(".mapbox").appendChild(box);
+    $("#map").style.cursor = "crosshair";
+    let mark;
     map.on("click", e => {
       const t = `lat: ${e.latlng.lat.toFixed(5)}, lng: ${e.latlng.lng.toFixed(5)}`;
-      navigator.clipboard?.writeText(t).catch(()=>{});
-      L.popup().setLatLng(e.latlng).setContent(`${t}<br>${dongAt(e.latlng.lat, e.latlng.lng) || "북구 밖"} / 복사됨`).openOn(map);
+      const dn = dongAt(e.latlng.lat, e.latlng.lng) || "북구 밖";
+      $("#cbText").textContent = `${t}  (${dn})`;
+      $("#cbCopy").hidden = false;
+      $("#cbCopy").onclick = () => navigator.clipboard.writeText(t).then(() => $("#cbCopy").textContent = "복사됨", () => $("#cbCopy").textContent = "직접 드래그해서 복사");
+      if(mark) mark.remove();
+      mark = L.circleMarker(e.latlng, { radius:8, color:"#C23A2F", weight:3, fillOpacity:.4 }).addTo(map);
     });
   }
 }
