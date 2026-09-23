@@ -4,133 +4,184 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>북구에 물어본 기록 | 박재진</title>
-<meta name="description" content="울산 북구 현안을 행정기관에 묻고 받은 답을 그대로 공개합니다.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="description" content="울산 북구 현안을 행정기관에 묻고 받은 답을 지도에서 확인하세요.">
+<meta property="og:title" content="북구에 물어본 기록, 박재진입니다">
+<meta property="og:description" content="울산 북구 현안을 행정기관에 묻고 받은 답을 지도에서 확인하세요.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{
-  --paper:#F4F5F1; --sheet:#FFFFFF; --ink:#1D2433; --muted:#667085; --rule:#CDD2C8;
-  --s-asked:#A9791C; --s-answered:#2B4C7E; --s-none:#B8322A; --s-appeal:#B8322A; --s-resolved:#3C6E47; --s-silent:#6B6B6B;
-  --focus:#2B4C7E;
+  --bg:#F3F5F8; --panel:#FFFFFF; --ink:#1B2230; --muted:#6B7483; --line:#E2E6EC;
+  --brand:#2447B8; --brand-soft:#EAF0FF;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 *,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:16px;line-height:1.65;word-break:keep-all}
-a{color:var(--s-answered)}
-:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15px;line-height:1.55;word-break:keep-all;display:flex;flex-direction:column}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
-header{max-width:1200px;margin:0 auto;padding:40px 20px 24px;border-bottom:2px solid var(--ink)}
-header h1{font-size:clamp(28px,5vw,44px);line-height:1.2;margin:0 0 10px;letter-spacing:-0.02em;font-weight:700}
-header p{margin:0;max-width:62ch;color:var(--muted)}
-#tally{margin-top:14px;font-weight:500;color:var(--ink)}
+/* 상단 바 */
+.top{flex:0 0 auto;height:60px;display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--panel);border-bottom:1px solid var(--line);position:relative;z-index:1001}
+.top h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-0.03em;white-space:nowrap}
+.badge{font-size:12.5px;font-weight:600;color:var(--brand);background:var(--brand-soft);border:1px solid #CBD7FA;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.top nav{margin-left:auto;display:flex;gap:6px}
+.top nav a,.top nav button{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;background:none;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+.top nav a:hover,.top nav button:hover{background:var(--bg)}
 
-main{max-width:1200px;margin:0 auto;padding:20px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr);gap:28px;align-items:start}
-@media (max-width:860px){main{grid-template-columns:1fr}#mapwrap{position:static!important;order:-1}#map{height:300px!important}}
+.app{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:380px minmax(0,1fr)}
 
-.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.filters select,.filters input{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:4px}
-.filters input{flex:1 1 160px}
+/* 왼쪽 패널 */
+.side{overflow:auto;padding:16px;background:var(--bg);border-right:1px solid var(--line)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.card h2{margin:0;font-size:16px;font-weight:700}
+.card h2 small{font-weight:500;color:var(--muted);font-size:13px;margin-left:4px}
+.card h3{margin:16px 0 8px;font-size:13.5px;font-weight:700;color:#454E5E}
+.reset{font-size:13px;color:var(--brand);background:none;border:0;cursor:pointer;padding:2px 4px}
+.rowf{width:100%;display:flex;align-items:center;justify-content:space-between;padding:9px 12px;margin-bottom:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.rowf:hover{border-color:#AFC0EE}
+.rowf.active{border-color:var(--brand);background:var(--brand-soft)}
+.rowf.zero{opacity:.55}
+.rowf .n{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:8px}
+.rowf .n::after{content:"";width:6px;height:6px;border-right:1.5px solid var(--muted);border-top:1.5px solid var(--muted);transform:rotate(45deg)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:13.5px;font-weight:600;padding:3px 10px;border-radius:8px;
+  background:color-mix(in srgb,var(--c) 13%,white);color:color-mix(in srgb,var(--c) 78%,black);border:1px solid color-mix(in srgb,var(--c) 32%,white)}
+.chip.dong{--c:#3B5BC9}
 
-/* 접수 대장 */
-.ledger{background:var(--sheet);border:1px solid var(--rule)}
-.ledger-head,.row{display:grid;grid-template-columns:92px minmax(0,1fr) 96px;gap:12px;padding:12px 16px;align-items:center}
-.ledger-head{font-size:13px;color:var(--muted);border-bottom:1px solid var(--ink)}
-.row{border-bottom:1px solid var(--rule);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;font:inherit;color:inherit}
-.row:hover{background:#F8F9F6}
-.row:last-child{border-bottom:0}
-.row .date{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
-.row .t{font-weight:500;line-height:1.4}
-.row .sub{font-size:13px;color:var(--muted);margin-top:2px}
-.empty{padding:28px 16px;color:var(--muted)}
+.search{width:100%;margin:12px 0 10px;font:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.item{width:100%;display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;padding:12px 4px;border:0;border-top:1px solid var(--line);background:none;text-align:left;cursor:pointer}
+.item:first-of-type{border-top:0}
+.item:hover .it{color:var(--brand)}
+.ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:19px;background:color-mix(in srgb,var(--c) 14%,white);border:2px solid var(--c)}
+.it{font-weight:700;line-height:1.4;font-size:15px}
+.im{font-size:13px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--s)}
+.st::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--s)}
+.via{font-size:12.5px;color:#2F6B45;background:#EAF5EE;border-radius:6px;padding:1px 7px}
+.empty{padding:18px 4px;color:var(--muted);font-size:14px}
+.rules{font-size:13px;color:var(--muted);padding:0 4px 8px}
+.rules p{margin:0 0 6px}
 
-/* 도장: 이 사이트의 유일한 강조 요소 */
-.stamp{justify-self:end;display:inline-grid;place-items:center;width:78px;height:78px;border-radius:50%;border:2.5px solid currentColor;color:var(--c);font-size:13px;font-weight:700;line-height:1.2;text-align:center;padding:6px;transform:rotate(-8deg);box-shadow:inset 0 0 0 3px var(--sheet),inset 0 0 0 4.5px currentColor;opacity:.88}
-.stamp.sm{width:64px;height:64px;font-size:12px}
+/* 지도 */
+.mapbox{position:relative;min-height:0}
+#map{position:absolute;inset:0;background:#E6EAE3}
+.chan{position:absolute;top:16px;left:16px;z-index:500;display:flex;gap:8px;flex-wrap:wrap}
+.chan button{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(27,34,48,.14)}
+.chan button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+.legend{position:absolute;left:16px;bottom:16px;z-index:500;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;max-width:calc(100% - 32px)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:50%;background:var(--s);display:inline-block}
+.report{position:absolute;right:16px;bottom:16px;z-index:500;width:290px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 6px 24px rgba(27,34,48,.18)}
+.report b{display:block;font-size:15px;margin-bottom:6px;padding-right:24px}
+.report p{margin:0;font-size:14px}
+.report a{color:var(--ink)}
+.report .x{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--panel);cursor:pointer;line-height:1}
 
-#mapwrap{position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
-#map{height:520px;border:1px solid var(--rule);background:#E9ECE5}
-.mapnote{font-size:13px;color:var(--muted);margin-top:8px}
-.approx-legend{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px dashed var(--ink);vertical-align:-1px;margin-right:4px}
-
-.principles{max-width:1200px;margin:8px auto 0;padding:24px 20px 48px;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;font-size:14px;color:var(--muted)}
-.principles h2{font-size:15px;color:var(--ink);margin:0 0 4px}
-.principles p{margin:0}
+/* 지도 핀 */
+.mk{position:relative;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:#fff;border:3px solid var(--c);box-shadow:0 3px 10px rgba(27,34,48,.35);transition:transform .15s}
+.mk:hover{transform:scale(1.12)}
+.mk.approx{border-style:dashed}
+.mk i{position:absolute;right:-3px;bottom:-3px;width:14px;height:14px;border-radius:50%;background:var(--s);border:2px solid #fff}
+.leaflet-tooltip{font-family:inherit;font-size:13px;border-radius:8px}
+.leaflet-control-zoom a{width:36px!important;height:36px!important;line-height:34px!important;font-size:20px!important}
 
 /* 상세 */
-dialog{border:0;padding:0;max-width:680px;width:calc(100% - 24px);max-height:88vh;background:var(--sheet);color:var(--ink);box-shadow:0 12px 40px rgba(29,36,51,.25)}
-dialog::backdrop{background:rgba(29,36,51,.45)}
-.d-head{display:flex;gap:16px;align-items:flex-start;padding:24px 24px 16px;border-bottom:2px solid var(--ink);position:relative}
-.d-head h2{margin:0;font-size:22px;line-height:1.35;flex:1}
-.close{position:absolute;top:8px;right:10px;font:inherit;font-size:22px;background:none;border:0;cursor:pointer;color:var(--muted);padding:4px 8px}
-.d-body{padding:8px 24px 24px;overflow:auto}
-.meta{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:14px;margin:14px 0}
+dialog{border:0;padding:0;width:min(640px,calc(100% - 24px));max-height:88vh;border-radius:18px;background:var(--panel);color:var(--ink);box-shadow:0 20px 60px rgba(27,34,48,.3)}
+dialog::backdrop{background:rgba(27,34,48,.45)}
+.d-head{padding:22px 24px 16px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start}
+.d-head h2{margin:8px 0 0;font-size:21px;line-height:1.35;letter-spacing:-0.02em}
+.stamp{display:grid;place-items:center;width:74px;height:74px;border-radius:50%;border:2.5px solid var(--s);color:var(--s);font-size:13px;font-weight:800;text-align:center;line-height:1.2;transform:rotate(-8deg);box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 4.5px var(--s);margin-right:26px}
+.close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:18px;line-height:1}
+.d-body{padding:4px 24px 24px;overflow:auto}
+.meta{display:grid;grid-template-columns:96px 1fr;gap:7px 12px;font-size:14px;margin:16px 0;padding:14px 16px;background:var(--bg);border-radius:12px}
 .meta dt{color:var(--muted)}
-.meta dd{margin:0}
-.sec{margin-top:20px}
-.sec h3{font-size:14px;margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid var(--rule)}
-.sec p{margin:0;max-width:65ch;white-space:pre-line}
-.sec.opinion{background:#F6F4EE;padding:12px 14px;border-left:3px solid var(--ink)}
-.sec.opinion h3{border:0;padding:0}
-.todo{color:var(--muted);font-style:italic}
-.docs a{display:block}
+.meta dd{margin:0;font-weight:500}
+.sec{margin-top:18px}
+.sec h3{font-size:14px;margin:0 0 6px;color:#454E5E}
+.sec p{margin:0;white-space:pre-line}
+.sec.opinion{background:#FFF8E8;border:1px solid #F1DFB2;padding:12px 14px;border-radius:12px}
+.todo{color:var(--muted);font-style:italic;font-weight:400}
+.docs a{display:block;color:var(--brand)}
+
+@media (max-width:900px){
+  body{display:block;height:auto}
+  .top{height:auto;min-height:56px;flex-wrap:wrap;padding:10px 14px;position:sticky;top:0}
+  .top h1{font-size:18px}
+  .top nav{margin-left:0}
+  .app{display:flex;flex-direction:column}
+  .mapbox{height:60vh}
+  .side{border-right:0}
+  .report{width:auto;left:16px;right:16px;bottom:16px}
+  .legend{display:none}
+  .chan button{padding:8px 12px;font-size:13.5px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>북구에 물어본 기록</h1>
-  <p>박재진이 울산 북구 현안을 행정기관에 묻고 받은 답을 그대로 공개합니다. 누가 결정하고, 누가 비용을 내고, 무엇이 아직 답해지지 않았는지 남겨 둡니다.</p>
-  <p id="tally"></p>
+<header class="top">
+  <h1>북구에 물어본 기록, 박재진입니다</h1>
+  <span class="badge" id="badge"></span>
+  <nav>
+    <a id="lnkYT" href="#" target="_blank" rel="noopener" hidden>▶ 유튜브</a>
+    <button id="btnReport" type="button">✉ 제보</button>
+  </nav>
 </header>
 
-<main>
-  <section aria-label="질의 목록">
-    <div class="filters">
-      <select id="fStatus" aria-label="진행 상태"><option value="">전체 상태</option></select>
-      <select id="fChannel" aria-label="질의 경로"><option value="">전체 경로</option></select>
-      <select id="fDong" aria-label="동"><option value="">전체 동</option></select>
-      <input id="fText" type="search" placeholder="제목·기관 검색" aria-label="검색">
-    </div>
-    <div class="ledger">
-      <div class="ledger-head"><span>질의일</span><span>무엇을 물었나</span><span style="justify-self:end">상태</span></div>
+<div class="app">
+  <aside class="side" aria-label="현황과 목록">
+    <section class="card">
+      <div class="card-h"><h2>질의 현황<small>(전체 기준)</small></h2><button class="reset" id="reset" hidden>필터 해제</button></div>
+      <h3>동별</h3><div id="byDong"></div>
+      <h3>분야별</h3><div id="byCat"></div>
+      <h3>상태별</h3><div id="byStatus"></div>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>기록 <small id="listCount"></small></h2></div>
+      <input class="search" id="q" type="search" placeholder="제목·기관으로 찾기" aria-label="검색">
       <div id="list"></div>
+    </section>
+    <div class="rules">
+      <p>기관이 회신한 내용과 제 평가는 칸을 나눠 적습니다.</p>
+      <p>제가 요청자·당사자인 사안은 항목마다 밝힙니다.</p>
+      <p>회신 원문은 담당자 개인정보를 가리고 첨부합니다.</p>
     </div>
-  </section>
-
-  <aside id="mapwrap" aria-label="지도">
-    <div id="map" role="img" aria-label="질의 위치 지도"></div>
-    <p class="mapnote" id="mapnote"></p>
   </aside>
-</main>
 
-<section class="principles" aria-label="기록 원칙">
-  <div><h2>받은 답과 제 평가를 나눕니다</h2><p>기관이 회신한 내용은 "받은 답"에, 제 해석은 "박재진의 평가"에 따로 적습니다.</p></div>
-  <div><h2>제가 당사자면 먼저 밝힙니다</h2><p>제가 요청자이거나 이해관계가 있는 사안은 항목마다 표시합니다.</p></div>
-  <div><h2>원문을 붙입니다</h2><p>회신 문서는 담당자 개인정보를 가린 뒤 원문 그대로 첨부합니다.</p></div>
-  <div><h2>제보 받습니다</h2><p id="contact">연락처 입력 전</p></div>
-</section>
+  <div class="mapbox">
+    <div id="map" aria-label="울산 북구 질의 지도"></div>
+    <div class="chan" id="chan" role="group" aria-label="질의 경로"></div>
+    <div class="legend" id="legend"></div>
+    <div class="report" id="report">
+      <button class="x" id="reportX" aria-label="닫기">×</button>
+      <b>북구에 물어볼 일을 알려주세요</b>
+      <p id="contact"></p>
+    </div>
+  </div>
+</div>
 
 <dialog id="detail" aria-labelledby="dTitle"></dialog>
 
 <script>
 /* ============================================================
-   데이터: 이 배열만 고치면 사이트가 바뀝니다.
-   값을 모르면 빈 문자열("")로 두세요. 화면에 "입력 전"으로 표시됩니다.
-   lat/lng를 모르면 null. 대략 위치면 approx:true (점선 표시).
+   데이터: 이 부분만 고치면 사이트가 바뀝니다.
+   모르는 값은 "" → 화면에 "입력 전". 위치 모르면 lat/lng null.
+   좌표 찍기: 주소 뒤에 ?coords 붙여서 열고 지도 클릭.
    ============================================================ */
 const SITE = {
-  contact: "" // 예: "010-0000-0000 / 이메일"
+  phone: "",    // 예: "010-0000-0000"
+  email: "",    // 예: "abc@gmail.com"
+  youtube: ""   // 예: "https://www.youtube.com/@울산박재진"
 };
 
 const RECORDS = [
   {
     id: "2026-ihwa-bus",
+    category: "edu",
     title: "이화중학교 한시 통학버스, 언제까지 운영하나",
     status: "answered",
     channel: "정보공개청구",
@@ -138,8 +189,8 @@ const RECORDS = [
     askedAt: "",            // 청구일 입력
     answeredAt: "",
     receiptNo: "",
-    dong: "중산동 일대",
-    lat: 35.620, lng: 129.332, approx: true, // 산업로 1631 기준 대략 위치 — 정확한 좌표로 교체
+    dong: "농소2동",        // 적어 두면 좌표보다 우선. 비워 두면 좌표로 자동 판정
+    lat: null, lng: null, approx: false, // ?coords 모드로 정문 찍어서 입력
     question: "한시 통학버스의 운영 종료 시점, 신입생(1학년) 지원 여부, 학년별 탑승 가능 여부.",
     answer: "",             // 회신 요지 입력
     opinion: "",
@@ -150,6 +201,7 @@ const RECORDS = [
   },
   {
     id: "2026-ulsan-flhs",
+    category: "edu",
     title: "울산외고 국제외국어고 전환, 근거 자료는 어디에 있나",
     status: "appeal",
     channel: "정보공개청구",
@@ -169,6 +221,7 @@ const RECORDS = [
   },
   {
     id: "2026-wholesale-market",
+    category: "economy",
     title: "농수산물도매시장 율현지구 이전과 북구 제2도매시장, 어떻게 되나",
     status: "answered",
     channel: "국민신문고",
@@ -188,6 +241,7 @@ const RECORDS = [
   },
   {
     id: "2026-gas-meter",
+    category: "housing",
     title: "공동주택 특수계량기 교체비, 누가 내야 하나",
     status: "asked",
     channel: "면담",
@@ -195,7 +249,7 @@ const RECORDS = [
     askedAt: "",
     answeredAt: "",
     receiptNo: "",
-    dong: "북구 전체",
+    dong: "북구 전체",      // 특정 동이 아닌 사안
     lat: null, lng: null, approx: false,
     question: "특수계량기 재검정·부속품 교체와 설치 비용을 도시가스사 공급비용에 반영할 수 있는가. 재검정품은 무상 교체, 신품을 원하는 단지는 자부담하는 방식.",
     answer: "",
@@ -207,57 +261,127 @@ const RECORDS = [
   }
 ];
 
-const STATUS = {
-  asked:       { label: "질의 중",   color: "var(--s-asked)" },
-  answered:    { label: "답변 받음", color: "var(--s-answered)" },
-  nonexistent: { label: "정보 없음\n회신", color: "var(--s-none)" },
-  appeal:      { label: "이의\n신청",  color: "var(--s-appeal)" },
-  silent:      { label: "답 없음",   color: "var(--s-silent)" },
-  resolved:    { label: "해결",      color: "var(--s-resolved)" }
+/* 울산 북구 행정동 경계 (출처: vuski/admdongkor ver20260701, 단순화) — 수정 불필요 */
+const DONGS = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"농소1동","code":"3120051000"},"geometry":{"type":"Polygon","coordinates":[[[129.3837,35.60885],[129.38234,35.60997],[129.38006,35.61096],[129.37922,35.61096],[129.36793,35.60912],[129.35614,35.60647],[129.35327,35.60529],[129.34934,35.60524],[129.35131,35.61809],[129.34976,35.62526],[129.34529,35.63152],[129.34935,35.63329],[129.35766,35.64416],[129.35944,35.64745],[129.36134,35.65335],[129.36376,35.65482],[129.3666,35.65444],[129.36793,35.65522],[129.36853,35.65645],[129.36904,35.659],[129.36995,35.6604],[129.37205,35.66199],[129.37553,35.6656],[129.37737,35.66614],[129.37595,35.66269],[129.37536,35.66035],[129.3758,35.6589],[129.3774,35.65661],[129.37822,35.65632],[129.37988,35.65647],[129.38075,35.65552],[129.38028,35.65402],[129.38108,35.64967],[129.38189,35.64789],[129.38181,35.64715],[129.37938,35.64468],[129.37774,35.64029],[129.37813,35.63818],[129.37906,35.6373],[129.38131,35.63193],[129.3815,35.63001],[129.38102,35.62915],[129.38008,35.62908],[129.38,35.62836],[129.38035,35.62784],[129.38453,35.62718],[129.38645,35.62725],[129.38888,35.62783],[129.39117,35.62773],[129.39244,35.62649],[129.39298,35.62436],[129.39268,35.62342],[129.38801,35.62251],[129.38743,35.62215],[129.38564,35.61941],[129.38629,35.61821],[129.38751,35.61767],[129.38925,35.61607],[129.39056,35.61434],[129.39075,35.61384],[129.39011,35.61121],[129.38873,35.61],[129.3837,35.60885]]]}},{"type":"Feature","properties":{"name":"농소2동","code":"3120052000"},"geometry":{"type":"Polygon","coordinates":[[[129.36455,35.67877],[129.36441,35.67764],[129.3647,35.67701],[129.36759,35.67454],[129.37257,35.67242],[129.37337,35.6708],[129.37347,35.66984],[129.37765,35.66667],[129.37737,35.66614],[129.37553,35.6656],[129.37205,35.66199],[129.36995,35.6604],[129.36904,35.659],[129.36853,35.65645],[129.36793,35.65522],[129.3666,35.65444],[129.36376,35.65482],[129.36134,35.65335],[129.35944,35.64745],[129.35766,35.64416],[129.34935,35.63329],[129.34529,35.63152],[129.34183,35.63536],[129.33718,35.64358],[129.33698,35.6516],[129.33414,35.65962],[129.33515,35.66206],[129.33709,35.66434],[129.33804,35.66644],[129.33721,35.6689],[129.34162,35.67083],[129.34668,35.67466],[129.34879,35.67733],[129.35389,35.67955],[129.35861,35.67973],[129.36455,35.67877]]]}},{"type":"Feature","properties":{"name":"농소3동","code":"3120053000"},"geometry":{"type":"Polygon","coordinates":[[[129.34529,35.63152],[129.34976,35.62526],[129.35131,35.61809],[129.35035,35.61071],[129.34834,35.59917],[129.34844,35.59528],[129.34135,35.59641],[129.33822,35.59562],[129.33574,35.59371],[129.33496,35.59355],[129.33275,35.59436],[129.33132,35.59532],[129.33093,35.59601],[129.33192,35.59808],[129.33104,35.59909],[129.32599,35.59799],[129.32378,35.59874],[129.32261,35.59805],[129.3226,35.59677],[129.32197,35.59522],[129.32135,35.59459],[129.31976,35.59386],[129.31736,35.5944],[129.31424,35.59259],[129.31194,35.5908],[129.31057,35.58925],[129.30919,35.589],[129.30723,35.58908],[129.30563,35.59033],[129.30421,35.59242],[129.30289,35.59338],[129.30107,35.59366],[129.29467,35.59239],[129.29346,35.59243],[129.28947,35.59543],[129.2901,35.59728],[129.29159,35.59829],[129.29281,35.60036],[129.29305,35.60255],[129.29608,35.60719],[129.29653,35.60767],[129.29847,35.60846],[129.29937,35.60944],[129.30014,35.61419],[129.29991,35.61474],[129.29783,35.61688],[129.29664,35.61725],[129.29462,35.61847],[129.29465,35.62583],[129.29698,35.62771],[129.29826,35.63106],[129.29819,35.63241],[129.29782,35.6332],[129.297,35.63387],[129.29619,35.63839],[129.29664,35.64192],[129.29712,35.64279],[129.29581,35.6443],[129.29672,35.64651],[129.30067,35.64818],[129.30277,35.64832],[129.30357,35.65697],[129.31083,35.66025],[129.31546,35.65957],[129.31879,35.65841],[129.32399,35.65921],[129.32602,35.66229],[129.3302,35.66553],[129.33464,35.66804],[129.33721,35.6689],[129.33804,35.66644],[129.33709,35.66434],[129.33515,35.66206],[129.33414,35.65962],[129.33698,35.6516],[129.33718,35.64358],[129.34183,35.63536],[129.34529,35.63152]]]}},{"type":"Feature","properties":{"name":"강동동","code":"3120054000"},"geometry":{"type":"Polygon","coordinates":[[[129.45001,35.65095],[129.44891,35.6495],[129.44839,35.64755],[129.44605,35.64603],[129.44282,35.64585],[129.44181,35.64507],[129.44125,35.64308],[129.44137,35.6404],[129.44081,35.63239],[129.44146,35.63003],[129.44362,35.62513],[129.44488,35.62354],[129.45062,35.61803],[129.44976,35.61684],[129.45,35.61482],[129.45326,35.61368],[129.45695,35.61394],[129.45756,35.6112],[129.45732,35.6107],[129.45746,35.60888],[129.45779,35.60813],[129.45907,35.6065],[129.45972,35.60655],[129.4604,35.6082],[129.46131,35.60732],[129.46437,35.59935],[129.46375,35.59807],[129.46262,35.59316],[129.46407,35.58786],[129.46516,35.58665],[129.46506,35.58589],[129.46076,35.58418],[129.45924,35.5846],[129.45865,35.58515],[129.45735,35.58474],[129.45358,35.58021],[129.45276,35.57877],[129.45265,35.57819],[129.45305,35.57733],[129.45281,35.57268],[129.44504,35.56733],[129.44396,35.56805],[129.4407,35.56836],[129.43828,35.56788],[129.4368,35.56694],[129.43494,35.56678],[129.43011,35.56722],[129.42916,35.56706],[129.42847,35.5657],[129.41722,35.56334],[129.41339,35.56097],[129.41235,35.56063],[129.41096,35.56154],[129.40833,35.56181],[129.40518,35.56077],[129.40439,35.5608],[129.40273,35.56217],[129.39962,35.56855],[129.39535,35.57026],[129.39535,35.57067],[129.39586,35.57111],[129.39849,35.57157],[129.39926,35.5722],[129.40034,35.57839],[129.39837,35.58277],[129.39702,35.58424],[129.39689,35.58565],[129.39776,35.58899],[129.3984,35.5902],[129.39764,35.5932],[129.39753,35.59701],[129.39456,35.59868],[129.39316,35.60036],[129.393,35.60157],[129.39379,35.60222],[129.39437,35.60343],[129.39363,35.60652],[129.38984,35.60594],[129.38496,35.60756],[129.3837,35.60885],[129.38873,35.61],[129.39011,35.61121],[129.39075,35.61384],[129.39056,35.61434],[129.38925,35.61607],[129.38751,35.61767],[129.38629,35.61821],[129.38564,35.61941],[129.38743,35.62215],[129.38801,35.62251],[129.39268,35.62342],[129.39298,35.62436],[129.39244,35.62649],[129.39117,35.62773],[129.38888,35.62783],[129.38645,35.62725],[129.38453,35.62718],[129.38035,35.62784],[129.38,35.62836],[129.38008,35.62908],[129.38102,35.62915],[129.3815,35.63001],[129.38131,35.63193],[129.37906,35.6373],[129.37813,35.63818],[129.37772,35.63994],[129.37938,35.64468],[129.38192,35.64747],[129.38108,35.64967],[129.38028,35.65402],[129.38075,35.65552],[129.37988,35.65647],[129.37822,35.65632],[129.3774,35.65661],[129.3758,35.6589],[129.37542,35.66078],[129.37765,35.66667],[129.37347,35.66984],[129.37642,35.66982],[129.38122,35.67106],[129.39384,35.66804],[129.39621,35.66807],[129.39993,35.66754],[129.4008,35.66711],[129.40343,35.66292],[129.40648,35.66288],[129.41073,35.66397],[129.41263,35.66402],[129.415,35.66204],[129.41755,35.66047],[129.42141,35.65937],[129.42839,35.65594],[129.43273,35.65664],[129.43396,35.65338],[129.43518,35.65218],[129.43742,35.65452],[129.44284,35.65438],[129.44471,35.65385],[129.44835,35.65117],[129.45001,35.65095]]]}},{"type":"Feature","properties":{"name":"효문동","code":"3120056000"},"geometry":{"type":"Polygon","coordinates":[[[129.39788,35.5692],[129.39465,35.56856],[129.39367,35.56792],[129.39253,35.5669],[129.39256,35.56613],[129.39134,35.56483],[129.38948,35.56456],[129.38427,35.56276],[129.38384,35.5617],[129.38137,35.55966],[129.37818,35.55999],[129.37658,35.55926],[129.37453,35.55979],[129.37285,35.55741],[129.37137,35.55594],[129.3731,35.54977],[129.3775,35.54711],[129.3789,35.54378],[129.37761,35.5419],[129.37802,35.53876],[129.37942,35.53694],[129.37468,35.5394],[129.36931,35.54356],[129.36461,35.54316],[129.35904,35.54503],[129.35272,35.54895],[129.35083,35.5528],[129.34992,35.55581],[129.35014,35.55755],[129.35377,35.56169],[129.35336,35.56449],[129.35192,35.56859],[129.35229,35.57218],[129.35155,35.57654],[129.35653,35.58096],[129.35762,35.58228],[129.35885,35.58569],[129.36264,35.58824],[129.37041,35.58847],[129.37449,35.58962],[129.38318,35.59098],[129.38738,35.59064],[129.39362,35.59251],[129.39764,35.5932],[129.3984,35.5902],[129.39776,35.58899],[129.39689,35.58565],[129.39702,35.58424],[129.39837,35.58277],[129.40034,35.57839],[129.39926,35.5722],[129.39849,35.57157],[129.39666,35.57145],[129.39535,35.57067],[129.39535,35.57026],[129.39788,35.5692]]]}},{"type":"Feature","properties":{"name":"송정동","code":"3120057000"},"geometry":{"type":"Polygon","coordinates":[[[129.38234,35.60997],[129.38496,35.60756],[129.38984,35.60594],[129.39363,35.60652],[129.39437,35.60343],[129.39379,35.60222],[129.393,35.60157],[129.39316,35.60036],[129.39456,35.59868],[129.39743,35.59721],[129.39771,35.59613],[129.39764,35.5932],[129.39362,35.59251],[129.38738,35.59064],[129.38318,35.59098],[129.37449,35.58962],[129.37041,35.58847],[129.36264,35.58824],[129.35885,35.58569],[129.35762,35.58228],[129.35653,35.58096],[129.35155,35.57654],[129.35038,35.57918],[129.34928,35.58068],[129.34809,35.58592],[129.3486,35.59211],[129.34834,35.59917],[129.34934,35.60524],[129.35327,35.60529],[129.35614,35.60647],[129.36793,35.60912],[129.37922,35.61096],[129.38006,35.61096],[129.38234,35.60997]]]}},{"type":"Feature","properties":{"name":"양정동","code":"3120058000"},"geometry":{"type":"Polygon","coordinates":[[[129.41096,35.56154],[129.41372,35.55907],[129.41154,35.55739],[129.40748,35.55608],[129.40305,35.55532],[129.39732,35.5528],[129.39648,35.55178],[129.39621,35.55073],[129.39611,35.54914],[129.39663,35.54793],[129.39641,35.54665],[129.39571,35.54492],[129.39378,35.54234],[129.39126,35.54037],[129.39148,35.53932],[129.3913,35.53788],[129.38711,35.53511],[129.38517,35.53517],[129.38302,35.53328],[129.37892,35.53604],[129.37942,35.53694],[129.37802,35.53876],[129.37761,35.5419],[129.3789,35.54378],[129.3775,35.54711],[129.3731,35.54977],[129.37137,35.55594],[129.37285,35.55741],[129.37453,35.55979],[129.37658,35.55926],[129.37818,35.55999],[129.38137,35.55966],[129.38384,35.5617],[129.38427,35.56276],[129.38948,35.56456],[129.39134,35.56483],[129.39256,35.56613],[129.39253,35.5669],[129.39367,35.56792],[129.39465,35.56856],[129.39788,35.5692],[129.39962,35.56855],[129.40273,35.56217],[129.40348,35.56133],[129.40439,35.5608],[129.40518,35.56077],[129.40833,35.56181],[129.41096,35.56154]]]}},{"type":"Feature","properties":{"name":"염포동","code":"3120059000"},"geometry":{"type":"Polygon","coordinates":[[[129.40844,35.54532],[129.4076,35.54314],[129.40563,35.54165],[129.40564,35.53973],[129.40632,35.53886],[129.4067,35.53751],[129.4059,35.53502],[129.40259,35.53147],[129.40258,35.53072],[129.4062,35.52653],[129.40912,35.52519],[129.41041,35.52423],[129.40937,35.52135],[129.40971,35.51939],[129.40924,35.51724],[129.40901,35.51657],[129.40836,35.516],[129.40668,35.51661],[129.40557,35.51749],[129.40555,35.51859],[129.40321,35.52011],[129.39892,35.52026],[129.39771,35.52077],[129.39763,35.52136],[129.3962,35.52179],[129.39443,35.52176],[129.39185,35.523],[129.39042,35.52539],[129.38922,35.5265],[129.38744,35.52726],[129.38581,35.52975],[129.38219,35.53243],[129.38517,35.53517],[129.38711,35.53511],[129.3913,35.53788],[129.39148,35.53932],[129.39126,35.54037],[129.39378,35.54234],[129.39571,35.54492],[129.39641,35.54665],[129.39663,35.54793],[129.39611,35.54914],[129.39621,35.55073],[129.39648,35.55178],[129.39732,35.5528],[129.40305,35.55532],[129.40748,35.55608],[129.41154,35.55739],[129.41372,35.55907],[129.41382,35.55614],[129.41322,35.55488],[129.41149,35.55291],[129.40817,35.55173],[129.40755,35.55108],[129.40701,35.54862],[129.40753,35.54651],[129.40844,35.54532]]]}}]};
+const DONG_NAMES = DONGS.features.map(f => f.properties.name);
+function inRing(x, y, ring){ let c = false; for(let i=0,j=ring.length-1;i<ring.length;j=i++){ const [xi,yi]=ring[i],[xj,yj]=ring[j]; if(((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi)) c=!c; } return c; }
+function inPoly(x, y, poly){ return inRing(x,y,poly[0]) && !poly.slice(1).some(h => inRing(x,y,h)); }
+function dongAt(lat, lng){
+  const f = DONGS.features.find(f => (f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates).some(p => inPoly(lng, lat, p)));
+  return f ? f.properties.name : "";
+}
+const dongOf = r => r.dong || (r.lat != null ? dongAt(r.lat, r.lng) : "");
+
+/* 분야: 필요하면 여기서 추가·수정 */
+const CATEGORY = {
+  traffic: { icon: "🚌", label: "교통·주차", color: "#2F7BD6" },
+  edu:     { icon: "🏫", label: "교육·보육", color: "#D99A1E" },
+  housing: { icon: "🏘️", label: "주거·생활", color: "#A8704F" },
+  economy: { icon: "🏪", label: "상권·경제", color: "#E0662F" },
+  industry:{ icon: "🏭", label: "산업·노동", color: "#51606F" },
+  env:     { icon: "🌳", label: "환경·공원", color: "#2F9A57" },
+  safety:  { icon: "🚨", label: "안전", color: "#DC3F3A" },
+  admin:   { icon: "📋", label: "행정·예산", color: "#7A58C2" }
 };
+const cat = r => CATEGORY[r.category] || { icon: "📌", label: "기타", color: "#8A94A3" };
+
+
+const STATUS = {
+  asked:       { label: "질의 중",        stamp: "질의 중",          color: "#B7801A" },
+  answered:    { label: "답변 받음",      stamp: "답변<br>받음",      color: "#2447B8" },
+  nonexistent: { label: "정보 없음 회신", stamp: "정보 없음<br>회신", color: "#C23A2F" },
+  appeal:      { label: "이의신청",       stamp: "이의<br>신청",      color: "#C23A2F" },
+  silent:      { label: "답 없음",        stamp: "답 없음",          color: "#6B7483" },
+  resolved:    { label: "해결",           stamp: "해결",             color: "#2F8A4E" }
+};
+const CHANNEL_ICON = { "정보공개청구":"📄", "국민신문고":"📮", "면담":"🤝" };
 
 /* ============================================================ */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const orTodo = v => v ? esc(v) : '<span class="todo">입력 전</span>';
-const stamp = (s, cls="") => { const st = STATUS[s] || STATUS.asked; return `<span class="stamp ${cls}" style="--c:${st.color}">${esc(st.label).replace("\n","<br>")}</span>`; };
+const st = r => STATUS[r.status] || STATUS.asked;
+const F = { dong:"", cat:"", status:"", channel:"", q:"" };
 
-function fillSelect(el, values){ [...new Set(values.filter(Boolean))].forEach(v => el.insertAdjacentHTML("beforeend", `<option>${esc(v)}</option>`)); }
-Object.entries(STATUS).forEach(([k,v]) => $("#fStatus").insertAdjacentHTML("beforeend", `<option value="${k}">${esc(v.label.replace("\n"," "))}</option>`));
-fillSelect($("#fChannel"), RECORDS.map(r => r.channel));
-fillSelect($("#fDong"), RECORDS.map(r => r.dong));
+/* 상단·제보 */
+const replied = RECORDS.filter(r => ["answered","nonexistent","appeal","resolved"].includes(r.status)).length;
+$("#badge").textContent = `질의 ${RECORDS.length}건 · 회신 ${replied}건`;
+if(SITE.youtube){ $("#lnkYT").href = SITE.youtube; $("#lnkYT").hidden = false; }
+$("#contact").innerHTML = (SITE.phone || SITE.email)
+  ? [SITE.phone && `📱 <a href="sms:${esc(SITE.phone.replace(/-/g,""))}">${esc(SITE.phone)}</a>`, SITE.email && `✉️ <a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a>`].filter(Boolean).join("<br>")
+  : '<span class="todo">연락처 입력 전</span>';
+$("#reportX").onclick = () => $("#report").hidden = true;
+$("#btnReport").onclick = () => { $("#report").hidden = false; $("#report").scrollIntoView({block:"nearest"}); };
 
-const answeredCount = RECORDS.filter(r => ["answered","nonexistent","appeal","resolved"].includes(r.status)).length;
-const resolvedCount = RECORDS.filter(r => r.status === "resolved").length;
-$("#tally").textContent = `지금까지 ${RECORDS.length}건을 물었고, ${answeredCount}건의 회신을 받았고, ${resolvedCount}건이 해결됐습니다.`;
-$("#contact").textContent = SITE.contact || "연락처 입력 전";
+/* 필터 */
+function match(r, skip){
+  return (skip==="dong" || !F.dong || dongOf(r) === F.dong || (F.dong === "북구 전체" && r.dong === "북구 전체"))
+      && (skip==="cat" || !F.cat || r.category === F.cat)
+      && (skip==="status" || !F.status || r.status === F.status)
+      && (!F.channel || r.channel === F.channel)
+      && (!F.q || (r.title + r.agencies.join(" ")).includes(F.q));
+}
+const shown = () => RECORDS.filter(r => match(r));
+function setF(k, v){ F[k] = (F[k] === v ? "" : v); render(); if(k === "dong") focusDong(); }
 
-function filtered(){
-  const s = $("#fStatus").value, c = $("#fChannel").value, d = $("#fDong").value, q = $("#fText").value.trim();
-  return RECORDS.filter(r =>
-    (!s || r.status === s) && (!c || r.channel === c) && (!d || r.dong === d) &&
-    (!q || (r.title + r.agencies.join(" ")).includes(q)));
+function rowsHTML(kind, entries){
+  return entries.map(([key, chip, n]) =>
+    `<button class="rowf${F[kind]===key?" active":""}${n?"":" zero"}" data-k="${kind}" data-v="${esc(key)}" aria-pressed="${F[kind]===key}">${chip}<span class="n">${n}건</span></button>`).join("");
+}
+function renderStats(){
+  const cnt = fn => RECORDS.filter(fn).length;
+  $("#byDong").innerHTML = rowsHTML("dong", [...DONG_NAMES, "북구 전체"].map(d =>
+    [d, `<span class="chip dong">${esc(d)}</span>`, cnt(r => d === "북구 전체" ? r.dong === "북구 전체" : dongOf(r) === d)]));
+  $("#byCat").innerHTML = rowsHTML("cat", Object.entries(CATEGORY).map(([k,c]) =>
+    [k, `<span class="chip" style="--c:${c.color}">${c.icon} ${esc(c.label)}</span>`, cnt(r => r.category === k)]));
+  $("#byStatus").innerHTML = rowsHTML("status", Object.entries(STATUS).map(([k,s]) =>
+    [k, `<span class="chip" style="--c:${s.color}">${esc(s.label)}</span>`, cnt(r => r.status === k)]));
+  $("#reset").hidden = !Object.values(F).some(Boolean);
+}
+$(".side").addEventListener("click", e => {
+  const b = e.target.closest(".rowf"); if(b) return setF(b.dataset.k, b.dataset.v);
+  const it = e.target.closest(".item"); if(it) openDetail(it.dataset.id, true);
+});
+$("#reset").onclick = () => { Object.keys(F).forEach(k => F[k] = ""); $("#q").value = ""; render(); focusDong(); };
+$("#q").addEventListener("input", e => { F.q = e.target.value.trim(); render(); });
+
+function renderList(rows){
+  $("#listCount").textContent = `${rows.length}건`;
+  $("#list").innerHTML = rows.length ? rows.map(r => { const c = cat(r), s = st(r); return `
+    <button class="item" data-id="${esc(r.id)}">
+      <span class="ic" style="--c:${c.color}" aria-hidden="true">${c.icon}</span>
+      <span>
+        <span class="it">${esc(r.title)}</span>
+        <span class="im">
+          <span class="st" style="--s:${s.color}">${esc(s.label)}</span>
+          <span>${esc(r.agencies.join(", "))}</span>
+          <span>${r.askedAt ? esc(r.askedAt.replaceAll("-",".")) : "날짜 입력 전"}</span>
+          ${r.via ? `<span class="via">${esc(r.via.name)} ${esc(r.via.role)} 통해 해결 중</span>` : ""}
+        </span>
+      </span>
+    </button>`; }).join("") : `<p class="empty">조건에 맞는 기록이 없습니다. 필터를 해제해 보세요.</p>`;
 }
 
-function renderList(){
-  const rows = filtered();
-  $("#list").innerHTML = rows.length ? rows.map(r => `
-    <button class="row" data-id="${esc(r.id)}">
-      <span class="date">${r.askedAt ? esc(r.askedAt.replaceAll("-",".")) : "날짜 입력 전"}</span>
-      <span><span class="t">${esc(r.title)}</span>
-        <span class="sub" style="display:block">${esc(r.agencies.join(", "))} / ${esc(r.channel)}${r.via ? ` / ${esc(r.via.name)} ${esc(r.via.role)} 통해 해결 중` : ""}</span></span>
-      ${stamp(r.status,"sm")}
-    </button>`).join("") : `<p class="empty">조건에 맞는 기록이 없습니다. 필터를 바꿔 보세요.</p>`;
-  renderMarkers(rows);
+/* 질의 경로 버튼 */
+function renderChan(){
+  const chans = [...new Set(RECORDS.map(r => r.channel).filter(Boolean))];
+  $("#chan").innerHTML = [["", "🗂", "전체"], ...chans.map(c => [c, CHANNEL_ICON[c] || "•", c])]
+    .map(([v,i,l]) => `<button type="button" data-v="${esc(v)}" aria-pressed="${F.channel===v}">${i} ${esc(l)}</button>`).join("");
 }
+$("#chan").addEventListener("click", e => { const b = e.target.closest("button"); if(b){ F.channel = b.dataset.v; render(); } });
+$("#legend").innerHTML = Object.values(STATUS).map(s => `<span><i style="--s:${s.color}"></i>${esc(s.label)}</span>`).join("") + "<span>점선 테두리: 대략 위치</span>";
 
-function openDetail(id){
+/* 상세 */
+function openDetail(id, fly){
   const r = RECORDS.find(x => x.id === id); if(!r) return;
+  const c = cat(r), s = st(r);
+  if(fly && map && r.lat != null) map.flyTo([r.lat, r.lng], 15, { duration:.6 });
   const d = $("#detail");
   d.innerHTML = `
+    <button class="close" aria-label="닫기">×</button>
     <div class="d-head">
-      <h2 id="dTitle">${esc(r.title)}</h2>${stamp(r.status)}
-      <button class="close" aria-label="닫기">×</button>
+      <div><span class="chip" style="--c:${c.color}">${c.icon} ${esc(c.label)}</span><h2 id="dTitle">${esc(r.title)}</h2></div>
+      <span class="stamp" style="--s:${s.color}">${s.stamp}</span>
     </div>
     <div class="d-body">
       <dl class="meta">
@@ -266,46 +390,68 @@ function openDetail(id){
         <dt>질의일</dt><dd>${orTodo(r.askedAt)}</dd>
         <dt>회신일</dt><dd>${orTodo(r.answeredAt)}</dd>
         <dt>접수번호</dt><dd>${orTodo(r.receiptNo)}</dd>
-        <dt>위치</dt><dd>${orTodo(r.dong)}${r.approx ? " (대략 위치)" : ""}</dd>
+        <dt>위치</dt><dd>${orTodo(dongOf(r))}${r.approx ? " (대략 위치)" : ""}</dd>
         <dt>저와의 관계</dt><dd>${orTodo(r.myRole)}</dd>
-        <dt>해결 경로</dt><dd>${r.via ? `${esc(r.via.name)} ${esc(r.via.role)}${r.via.note ? ` — ${esc(r.via.note)}` : ""}` : '<span class="todo">연결된 의원 없음</span>'}</dd>
+        <dt>해결 경로</dt><dd>${r.via ? `${esc(r.via.name)} ${esc(r.via.role)}${r.via.note ? ` / ${esc(r.via.note)}` : ""}` : '<span class="todo">연결된 의원 없음</span>'}</dd>
       </dl>
       <div class="sec"><h3>무엇을 물었나</h3><p>${orTodo(r.question)}</p></div>
       <div class="sec"><h3>받은 답</h3><p>${orTodo(r.answer)}</p></div>
       ${r.opinion ? `<div class="sec opinion"><h3>박재진의 평가</h3><p>${esc(r.opinion)}</p></div>` : ""}
       <div class="sec"><h3>다음 할 일</h3><p>${orTodo(r.next)}</p></div>
-      <div class="sec docs"><h3>원문</h3>${r.docs.length ? r.docs.map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a>`).join("") : '<p class="todo">첨부 전</p>'}</div>
+      <div class="sec docs"><h3>원문</h3>${r.docs.length ? r.docs.map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener">📎 ${esc(x.label)}</a>`).join("") : '<p class="todo">첨부 전</p>'}</div>
     </div>`;
   d.querySelector(".close").onclick = () => d.close();
   d.showModal();
 }
 $("#detail").addEventListener("click", e => { if(e.target.id === "detail") e.target.close(); });
-$("#list").addEventListener("click", e => { const b = e.target.closest(".row"); if(b) openDetail(b.dataset.id); });
-["#fStatus","#fChannel","#fDong","#fText"].forEach(s => $(s).addEventListener("input", renderList));
 
 /* 지도 */
-let map, layer;
+let map, pins, dongLayer;
+const BASE = { color:"#2447B8", weight:2.5, opacity:.85, fillColor:"#2447B8", fillOpacity:.03 };
+const HOT  = { weight:4, opacity:1, fillOpacity:.16 };
 function initMap(){
-  if(typeof L === "undefined"){ $("#map").innerHTML = '<p class="empty">지도를 불러오지 못했습니다. 인터넷 연결을 확인하세요.</p>'; return; }
-  map = L.map("map", { scrollWheelZoom:false }).setView([35.595, 129.365], 12); // 울산 북구 대략 중심
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom:18, attribution:"&copy; OpenStreetMap" }).addTo(map);
-  layer = L.layerGroup().addTo(map);
+  if(typeof L === "undefined"){ $("#map").innerHTML = '<p class="empty" style="padding:20px">지도를 불러오지 못했습니다. 인터넷 연결을 확인하세요.</p>'; return; }
+  map = L.map("map", { zoomControl:false, scrollWheelZoom:true });
+  L.control.zoom({ position:"bottomright" }).addTo(map);
+  L.tileLayer("https://tiles.osm.kr/hot/{z}/{x}/{y}.png", { maxZoom:18,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> 기여자, OSM Korea / 행정동 경계 vuski/admdongkor' }).addTo(map);
+  dongLayer = L.geoJSON(DONGS, { style: () => BASE, onEachFeature: (f, l) => {
+    const name = f.properties.name;
+    l.bindTooltip(() => `<b>${esc(name)}</b> 기록 ${RECORDS.filter(r => dongOf(r) === name).length}건`, { sticky:true });
+    l.on({ mouseover: () => l.setStyle(HOT), mouseout: () => { if(F.dong !== name) l.setStyle(BASE); }, click: () => setF("dong", name) });
+  }}).addTo(map);
+  pins = L.layerGroup().addTo(map);
+  map.fitBounds(dongLayer.getBounds(), { padding:[20,20] });
+  if(new URLSearchParams(location.search).has("coords")){
+    map.on("click", e => {
+      const t = `lat: ${e.latlng.lat.toFixed(5)}, lng: ${e.latlng.lng.toFixed(5)}`;
+      navigator.clipboard?.writeText(t).catch(()=>{});
+      L.popup().setLatLng(e.latlng).setContent(`${t}<br>${dongAt(e.latlng.lat, e.latlng.lng) || "북구 밖"} / 복사됨`).openOn(map);
+    });
+  }
 }
-function renderMarkers(rows){
+function focusDong(){
+  if(!dongLayer) return;
+  let target = null;
+  dongLayer.eachLayer(l => { const on = F.dong === l.feature.properties.name; l.setStyle(on ? HOT : BASE); if(on) target = l; });
+  map.flyToBounds(target ? target.getBounds() : dongLayer.getBounds(), { padding:[30,30], duration:.6 });
+}
+function renderPins(rows){
   if(!map) return;
-  layer.clearLayers();
-  const css = getComputedStyle(document.documentElement);
+  pins.clearLayers();
   rows.filter(r => r.lat != null && r.lng != null).forEach(r => {
-    const col = css.getPropertyValue(STATUS[r.status].color.slice(4,-1)).trim();
-    L.circleMarker([r.lat, r.lng], { radius:9, color:col, weight:2.5, fillColor:col, fillOpacity:.35, dashArray: r.approx ? "4 4" : null })
-      .bindTooltip(r.title).on("click", () => openDetail(r.id)).addTo(layer);
+    const c = cat(r), s = st(r);
+    const icon = L.divIcon({ className:"", iconSize:[42,42], iconAnchor:[21,21],
+      html:`<div class="mk${r.approx?" approx":""}" style="--c:${c.color};--s:${s.color}">${c.icon}<i></i></div>` });
+    L.marker([r.lat, r.lng], { icon, title:r.title, riseOnHover:true })
+      .bindTooltip(`${c.icon} ${esc(r.title)}<br><span style="color:${s.color};font-weight:700">${esc(s.label)}</span>`, { direction:"top", offset:[0,-20] })
+      .on("click", () => openDetail(r.id, false)).addTo(pins);
   });
-  const noPin = rows.filter(r => r.lat == null).length;
-  $("#mapnote").innerHTML = `<span class="approx-legend"></span>점선은 대략 위치입니다.` + (noPin ? ` 지도에 없는 ${noPin}건은 북구 전체에 해당하거나 위치 입력 전입니다.` : "");
 }
 
+function render(){ const rows = shown(); renderStats(); renderChan(); renderList(rows); renderPins(rows); }
 initMap();
-renderList();
+render();
 </script>
 </body>
 </html>
