@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>북구에 물어본 기록 | 박재진</title>
+<title>울산 북구의 박재진이 물어 본 기록</title>
 <meta name="description" content="울산 북구 현안을 행정기관에 묻고 받은 답을 지도에서 확인하세요.">
-<meta property="og:title" content="북구에 물어본 기록, 박재진입니다">
+<meta property="og:title" content="울산 북구의 박재진이 물어 본 기록">
 <meta property="og:description" content="울산 북구 현안을 행정기관에 묻고 받은 답을 지도에서 확인하세요.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -163,7 +163,7 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
 <body>
 
 <header class="top">
-  <h1>북구에 물어본 기록, 박재진입니다</h1>
+  <h1>울산 북구의 박재진이 물어 본 기록</h1>
   <span class="badge" id="badge"></span>
   <nav>
     <a id="lnkYT" href="#" target="_blank" rel="noopener" hidden>▶ 유튜브</a>
@@ -496,7 +496,7 @@ $("#nopin").addEventListener("click", e => { const b = e.target.closest("button"
 $("#detail").addEventListener("click", e => { if(e.target.id === "detail") e.target.close(); });
 
 /* 지도 */
-let map, pins, dongLayer;
+let map, pins, dongLayer, popupClosedAt = 0;
 const COORDS = new URLSearchParams(location.search).has("coords");
 const BASE = { color:"#2447B8", weight:2.5, opacity:.85, fillColor:"#2447B8", fillOpacity:.03 };
 const HOT  = { weight:4, opacity:1, fillOpacity:.16 };
@@ -510,10 +510,11 @@ function initMap(){
     if(COORDS) return;
     const name = f.properties.name;
     l.bindTooltip(() => `<b>${esc(name)}</b> 기록 ${RECORDS.filter(r => dongOf(r) === name).length}건`, { sticky:true });
-    l.on({ mouseover: () => l.setStyle(HOT), mouseout: () => { if(F.dong !== name) l.setStyle(BASE); }, click: () => setF("dong", name) });
+    l.on({ mouseover: () => l.setStyle(HOT), mouseout: () => { if(F.dong !== name) l.setStyle(BASE); }, click: () => { if(Date.now() - popupClosedAt < 400) return; setF("dong", name); } });
   }}).addTo(map);
   pins = L.layerGroup().addTo(map);
   map.on("zoomend", () => renderPins(lastRows));
+  map.on("popupclose", () => popupClosedAt = Date.now());
   map.getContainer().addEventListener("click", e => { const b = e.target.closest(".ppb"); if(b){ map.closePopup(); openDetail(b.dataset.id, false); } });
   map.fitBounds(dongLayer.getBounds(), { padding:[20,20] });
   if(COORDS){
@@ -599,7 +600,7 @@ function popupHTML(r){
   </div>`;
 }
 
-function render(){ const rows = shown(); renderStats(); renderChan(); renderList(rows); renderPins(rows); }
+function render(){ const rows = shown(); renderStats(); renderChan(); renderList(rows); renderPins(RECORDS.filter(r => match(r, "dong"))); }
 initMap();
 render();
 </script>
