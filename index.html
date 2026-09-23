@@ -122,6 +122,16 @@ button{font:inherit;color:inherit}
 .ppc .ph2 img{height:88px}
 .d-body .ph{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
 .d-body .ph img{height:160px;border-radius:8px}
+.rdlg{width:min(440px,calc(100% - 24px))}
+.rbody{padding:30px 26px 26px;text-align:center}
+.remoji{font-size:40px;line-height:1}
+.rbody h2{margin:10px 0 6px;font-size:20px}
+.rsub{margin:0 0 18px;color:var(--muted);font-size:14px}
+.rrow{display:flex;align-items:center;gap:8px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);margin-bottom:10px;text-align:left}
+.rrow .rv{flex:1;font-size:16px;font-weight:700;word-break:break-all;user-select:all}
+.rrow button,.rrow a{flex:0 0 auto;border:0;border-radius:9px;padding:8px 12px;font-size:13.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.rrow .cp{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.rrow .go{background:var(--brand);color:#fff}
 .leaflet-tooltip{font-family:inherit;font-size:13px;border-radius:8px}
 .leaflet-control-zoom a{width:36px!important;height:36px!important;line-height:34px!important;font-size:20px!important}
 
@@ -206,6 +216,15 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
 </div>
 
 <dialog id="detail" aria-labelledby="dTitle"></dialog>
+<dialog id="reportDlg" class="rdlg" aria-labelledby="rTitle">
+  <button class="close" id="rClose" aria-label="닫기">×</button>
+  <div class="rbody">
+    <div class="remoji" aria-hidden="true">✉️</div>
+    <h2 id="rTitle">북구에 물어볼 일을 알려주세요</h2>
+    <p class="rsub">동네에서 불편한 점, 행정기관에 묻고 싶은 것을 보내주시면 직접 확인해 기록으로 남기겠습니다.</p>
+    <div id="rList"></div>
+  </div>
+</dialog>
 
 <script>
 
@@ -398,7 +417,20 @@ $("#contact").innerHTML = (SITE.phone || SITE.email)
   ? [SITE.phone && `📱 <a href="sms:${esc(SITE.phone.replace(/-/g,""))}">${esc(SITE.phone)}</a>`, SITE.email && `✉️ <a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a>`].filter(Boolean).join("<br>")
   : '<span class="todo">연락처 입력 전</span>';
 $("#reportX").onclick = () => $("#report").hidden = true;
-$("#btnReport").onclick = () => { $("#report").hidden = false; $("#report").scrollIntoView({block:"nearest"}); };
+function openReport(){
+  const rows = [];
+  if(SITE.email) rows.push(`<div class="rrow"><span aria-hidden="true">✉️</span><span class="rv">${esc(SITE.email)}</span><button type="button" class="cp" data-copy="${esc(SITE.email)}">복사</button><a class="go" href="mailto:${esc(SITE.email)}?subject=${encodeURIComponent("[북구 제보] ")}">메일 쓰기</a></div>`);
+  if(SITE.phone) rows.push(`<div class="rrow"><span aria-hidden="true">📱</span><span class="rv">${esc(SITE.phone)}</span><button type="button" class="cp" data-copy="${esc(SITE.phone)}">복사</button><a class="go" href="sms:${esc(SITE.phone.replace(/-/g,""))}">문자</a></div>`);
+  $("#rList").innerHTML = rows.join("") || '<p class="todo">연락처 입력 전</p>';
+  $("#reportDlg").showModal();
+}
+$("#btnReport").onclick = openReport;
+$("#rClose").onclick = () => $("#reportDlg").close();
+$("#reportDlg").addEventListener("click", e => {
+  if(e.target.id === "reportDlg") return e.target.close();
+  const b = e.target.closest(".cp"); if(!b) return;
+  navigator.clipboard?.writeText(b.dataset.copy).then(() => b.textContent = "복사됨", () => b.textContent = "길게 눌러 복사");
+});
 
 /* 필터 */
 function match(r, skip){
