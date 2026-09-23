@@ -71,10 +71,17 @@ button{font:inherit;color:inherit}
 .chan{position:absolute;top:16px;left:16px;z-index:500;display:flex;gap:8px;flex-wrap:wrap}
 .chan button{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(27,34,48,.14)}
 .chan button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+.nopin{position:absolute;top:16px;right:16px;z-index:500;width:270px;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:0 4px 16px rgba(27,34,48,.16)}
+.nopin h4{margin:0 0 8px;font-size:13.5px}
+.nopin h4 small{font-weight:500;color:var(--muted)}
+.nopin button{display:flex;align-items:center;gap:8px;width:100%;padding:6px 4px;border:0;background:none;text-align:left;cursor:pointer;font-size:13.5px;border-radius:8px}
+.nopin button:hover{background:var(--bg)}
+.nopin .ic{width:30px;height:30px;font-size:15px;flex:0 0 30px}
+.nopin .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .legend{position:absolute;left:16px;bottom:16px;z-index:500;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;max-width:calc(100% - 32px)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:9px;height:9px;border-radius:50%;background:var(--s);display:inline-block}
-.report{position:absolute;right:16px;bottom:16px;z-index:500;width:290px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 6px 24px rgba(27,34,48,.18)}
+.report{position:absolute;right:66px;bottom:16px;z-index:500;width:290px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 6px 24px rgba(27,34,48,.18)}
 .report b{display:block;font-size:15px;margin-bottom:6px;padding-right:24px}
 .report p{margin:0;font-size:14px}
 .report a{color:var(--ink)}
@@ -90,6 +97,31 @@ button{font:inherit;color:inherit}
 .mk:hover{transform:scale(1.12)}
 .mk.approx{border-style:dashed}
 .mk i{position:absolute;right:-3px;bottom:-3px;width:14px;height:14px;border-radius:50%;background:var(--s);border:2px solid #fff}
+.cl-unused{position:relative;width:52px;height:52px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-shadow:0 3px 12px rgba(27,34,48,.38);display:grid;place-items:center;font-size:14px;letter-spacing:-3px;cursor:pointer}
+.cl b{position:absolute;top:-6px;right:-6px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--brand);color:#fff;font-size:12.5px;letter-spacing:0;display:grid;place-items:center;border:2px solid #fff}
+.pp .leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 8px 28px rgba(27,34,48,.28)}
+.pp .leaflet-popup-content{margin:14px 16px;font-family:inherit;font-size:14px;line-height:1.5}
+.ppc .ppt{display:block;font-size:15.5px;margin:8px 0 4px;line-height:1.4}
+.ppc p{margin:8px 0 10px;color:#3A4352}
+.ppb{width:100%;padding:9px;border:0;border-radius:10px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
+.ppb:hover{filter:brightness(1.1)}
+.steps{list-style:none;margin:12px 0 4px;padding:12px 8px 8px;display:flex;border:1px solid var(--line);border-radius:12px;background:#FAFBFC}
+.steps li{flex:1;position:relative;text-align:center;font-size:13px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
+.steps li::before{content:"";position:absolute;top:8px;left:-50%;width:100%;height:2px;background:var(--line);z-index:0}
+.steps li:first-child::before{display:none}
+.steps li.done::before,.steps li.cur::before{background:var(--s)}
+.steps i{position:relative;z-index:1;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #C9CFD8}
+.steps li.done i{background:var(--s);border-color:var(--s)}
+.steps li.cur i{border-color:var(--s);box-shadow:inset 0 0 0 4px #fff;background:var(--s)}
+.steps li.cur span{color:var(--ink);font-weight:700}
+.steps small{font-size:11.5px;color:var(--s);font-weight:700}
+.ph{display:grid;gap:4px;margin:8px 0;border-radius:10px;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;background:var(--bg)}
+.ppc .ph1 img{height:150px}
+.ppc .ph2{grid-template-rows:1fr 1fr}
+.ppc .ph2 img{height:88px}
+.d-body .ph{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.d-body .ph img{height:160px;border-radius:8px}
 .leaflet-tooltip{font-family:inherit;font-size:13px;border-radius:8px}
 .leaflet-control-zoom a{width:36px!important;height:36px!important;line-height:34px!important;font-size:20px!important}
 
@@ -121,6 +153,7 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
   .side{border-right:0}
   .report{width:auto;left:16px;right:16px;bottom:16px}
   .legend{display:none}
+  .nopin{position:static;width:auto;margin:12px 16px 0;box-shadow:none}
   .chan button{padding:8px 12px;font-size:13.5px}
   .coordbox{top:auto;bottom:16px}
 }
@@ -163,6 +196,7 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
     <div id="map" aria-label="울산 북구 질의 지도"></div>
     <div class="chan" id="chan" role="group" aria-label="질의 경로"></div>
     <div class="legend" id="legend"></div>
+    <div class="nopin" id="nopin" hidden></div>
     <div class="report" id="report">
       <button class="x" id="reportX" aria-label="닫기">×</button>
       <b>북구에 물어볼 일을 알려주세요</b>
@@ -215,7 +249,8 @@ const RECORDS = [
     next: "설치 1년 시점(2026년 12월 10일 무렵) 재검토 결과 확인. 결과 통보가 없으면 재질의.",
     via: null,
     myRole: "신청자 / 해당 단지(디아채) 거주 주민",
-    docs: []                // 회신 원문 첨부 시 담당자 이름·연락처 가림
+    docs: [],               // 회신 원문 첨부 시 담당자 이름·연락처 가림
+    photos: []              // 현장 사진 파일명. 예: ["photos/diache-1.jpg"]
   },
   {
     id: "2026-ihwa-bus",
@@ -235,7 +270,8 @@ const RECORDS = [
     next: "",
     via: null,              // 예: { name: "홍길동", role: "북구의원", note: "후속 협의 중" }
     myRole: "요청자",
-    docs: []                // 예: [{ label: "교육청 회신(개인정보 가림)", url: "docs/ihwa-reply.pdf" }]
+    docs: [],               // 예: [{ label: "교육청 회신(개인정보 가림)", url: "docs/ihwa-reply.pdf" }]
+    photos: []              // 현장 사진 파일명. 예: ["photos/ihwa-1.jpg"]
   },
   {
     id: "2026-ulsan-flhs",
@@ -255,7 +291,8 @@ const RECORDS = [
     next: "이의신청 회신 내용 입력.",
     via: null,
     myRole: "요청자",
-    docs: []
+    docs: [],
+    photos: []
   },
   {
     id: "2026-wholesale-market",
@@ -284,7 +321,8 @@ const RECORDS = [
     next: "2027년 1월 지방공기업평가원 타당성 검토 결과 확인.",
     via: null,
     myRole: "요청자",
-    docs: []                // 회신 원문 첨부 시 담당자 이름·연락처 가림
+    docs: [],               // 회신 원문 첨부 시 담당자 이름·연락처 가림
+    photos: []              // 현장 사진 파일명. 예: ["photos/diache-1.jpg"]
   },
   {
     id: "2026-gas-meter",
@@ -304,7 +342,8 @@ const RECORDS = [
     next: "",
     via: null,
     myRole: "제안자",
-    docs: []
+    docs: [],
+    photos: []
   }
 ];
 
@@ -432,6 +471,8 @@ function openDetail(id, fly){
       <span class="stamp" style="--s:${s.color}">${s.stamp}</span>
     </div>
     <div class="d-body">
+      ${stepsHTML(r)}
+      ${photosHTML(r)}
       <dl class="meta">
         <dt>질의 경로</dt><dd>${orTodo(r.channel)}</dd>
         <dt>대상 기관</dt><dd>${orTodo(r.agencies.join(", "))}</dd>
@@ -451,6 +492,7 @@ function openDetail(id, fly){
   d.querySelector(".close").onclick = () => d.close();
   d.showModal();
 }
+$("#nopin").addEventListener("click", e => { const b = e.target.closest("button"); if(b) openDetail(b.dataset.id, false); });
 $("#detail").addEventListener("click", e => { if(e.target.id === "detail") e.target.close(); });
 
 /* 지도 */
@@ -471,6 +513,8 @@ function initMap(){
     l.on({ mouseover: () => l.setStyle(HOT), mouseout: () => { if(F.dong !== name) l.setStyle(BASE); }, click: () => setF("dong", name) });
   }}).addTo(map);
   pins = L.layerGroup().addTo(map);
+  map.on("zoomend", () => renderPins(lastRows));
+  map.getContainer().addEventListener("click", e => { const b = e.target.closest(".ppb"); if(b){ map.closePopup(); openDetail(b.dataset.id, false); } });
   map.fitBounds(dongLayer.getBounds(), { padding:[20,20] });
   if(COORDS){
     const box = document.createElement("div");
@@ -496,17 +540,63 @@ function focusDong(){
   dongLayer.eachLayer(l => { const on = F.dong === l.feature.properties.name; l.setStyle(on ? HOT : BASE); if(on) target = l; });
   map.flyToBounds(target ? target.getBounds() : dongLayer.getBounds(), { padding:[30,30], duration:.6 });
 }
+let lastRows = [];
+function pinHTML(r){ const c = cat(r), s = st(r);
+  return `<div class="mk${r.approx?" approx":""}" style="--c:${c.color};--s:${s.color}">${c.icon}<i></i></div>`; }
 function renderPins(rows){
   if(!map) return;
+  lastRows = rows;
   pins.clearLayers();
-  rows.filter(r => r.lat != null && r.lng != null).forEach(r => {
-    const c = cat(r), s = st(r);
-    const icon = L.divIcon({ className:"", iconSize:[42,42], iconAnchor:[21,21],
-      html:`<div class="mk${r.approx?" approx":""}" style="--c:${c.color};--s:${s.color}">${c.icon}<i></i></div>` });
-    L.marker([r.lat, r.lng], { icon, title:r.title, riseOnHover:true })
-      .bindTooltip(`${c.icon} ${esc(r.title)}<br><span style="color:${s.color};font-weight:700">${esc(s.label)}</span>`, { direction:"top", offset:[0,-20] })
-      .on("click", () => openDetail(r.id, false)).addTo(pins);
+  const pts = rows.filter(r => r.lat != null && r.lng != null).map(r => ({ r, p: map.latLngToLayerPoint([r.lat, r.lng]) }));
+  const groups = [];
+  pts.forEach(pt => {                       // 화면상 44px 안에 겹치는 핀은 묶음으로
+    const g = groups.find(g => g.some(x => x.p.distanceTo(pt.p) < 44));
+    g ? g.push(pt) : groups.push([pt]);
   });
+  const off = rows.filter(r => r.lat == null || r.lng == null);
+  $("#nopin").hidden = !off.length;
+  $("#nopin").innerHTML = off.length ? `<h4>지도에 위치가 없는 기록 <small>${off.length}건</small></h4>` + off.map(r => { const c = cat(r);
+    return `<button type="button" data-id="${esc(r.id)}"><span class="ic" style="--c:${c.color}">${c.icon}</span><span class="t">${esc(r.title)}</span></button>`; }).join("") : "";
+  groups.forEach(g => {
+    g.forEach((x, i) => {                   // 겹치면 원형으로 살짝 벌려서 전부 보이게
+      const n = g.length, R = n > 1 ? 24 + 4*n : 0;
+      const cx = g.reduce((t,y) => t + y.p.x, 0) / n, cy = g.reduce((t,y) => t + y.p.y, 0) / n;
+      let vx = x.p.x - cx, vy = x.p.y - cy, len = Math.hypot(vx, vy);
+      if(len < 1){ const ang = -Math.PI/2 + 2*Math.PI*i/n; vx = Math.cos(ang); vy = Math.sin(ang); len = 1; } // 같은 위치면 원형 배치
+      const dx = Math.round(R*vx/len), dy = Math.round(R*vy/len); // 실제 방향 유지한 채 벌리기
+      const r = x.r, c = cat(r), s = st(r);
+      L.marker([r.lat, r.lng], { icon: L.divIcon({ className:"", iconSize:[42,42], iconAnchor:[21-dx, 21-dy], popupAnchor:[dx, dy-18], tooltipAnchor:[dx, dy-18], html: pinHTML(r) }),
+          title:r.title, riseOnHover:true, keyboard:true })
+        .bindTooltip(`${c.icon} ${esc(r.title)}`, { direction:"top" })
+        .bindPopup(popupHTML(r), { maxWidth:320, minWidth:260, className:"pp", autoPanPaddingTopLeft:[20,100], autoPanPaddingBottomRight:[300,20] })
+        .addTo(pins);
+    });
+  });
+}
+function stepsHTML(r){
+  const k = r.status;
+  const mid = { answered:"회신", nonexistent:"정보 없음", appeal:"이의신청", silent:"답 없음" }[k] || "회신";
+  const cur = k === "asked" ? 0 : k === "resolved" ? 2 : 1;
+  const col = st(r).color;
+  return `<ol class="steps" style="--s:${col}">` + ["질의", mid, "해결"].map((t,i) =>
+    `<li class="${i < cur ? "done" : i === cur ? "cur" : ""}"><i></i><span>${esc(t)}</span>${i === cur ? "<small>현재</small>" : ""}</li>`).join("") + `</ol>`;
+}
+function photosHTML(r, max){
+  const ps = (r.photos || []).slice(0, max || 99);
+  return ps.length ? `<div class="ph ph${ps.length > 1 ? 2 : 1}">` + ps.map(u => `<img src="${esc(u)}" alt="${esc(r.title)} 현장 사진" loading="lazy">`).join("") + `</div>` : "";
+}
+function popupHTML(r){
+  const c = cat(r), s = st(r);
+  const ans = (r.answer || "").replace(/\n/g," ");
+  return `<div class="ppc">
+    <span class="chip" style="--c:${c.color}">${c.icon} ${esc(c.label)}</span>
+    <b class="ppt">${esc(r.title)}</b>
+    ${photosHTML(r, 2)}
+    ${stepsHTML(r)}
+    <div class="im"><span class="st" style="--s:${s.color}">${esc(s.label)}</span><span>${esc(r.agencies.join(", ") || "기관 입력 전")}</span><span>${esc(dongOf(r))}</span></div>
+    <p>${ans ? esc(ans.length > 110 ? ans.slice(0,110) + "…" : ans) : '<span class="todo">받은 답 입력 전</span>'}</p>
+    <button type="button" class="ppb" data-id="${esc(r.id)}">전체 내용 보기</button>
+  </div>`;
 }
 
 function render(){ const rows = shown(); renderStats(); renderChan(); renderList(rows); renderPins(rows); }
