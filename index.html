@@ -282,6 +282,36 @@ const SITE = {
 
 const RECORDS = [
   {
+    id: "2026-maegok-schoolroute",
+    category: "safety",
+    title: "오토효성~에일린의뜰~매곡초·매곡중 통학로, 끊기지 않게 이어질 수 있나",
+    asker: "홍예지 (매곡에듀파크에일린의뜰 입주자대표회장)", // 본인이 자료를 보내고 실명 표기에 동의
+    status: "partial",
+    channel: "국민신문고",
+    agencies: ["울산 북구청 건설과"],
+    askedAt: "2026-09-21",
+    answeredAt: "2026-10-01",
+    receiptNo: "1AA-2609-0954601",
+    dong: "",               // 좌표로 자동 판정
+    lat: 35.64580, lng: 129.35020, approx: true, // 에일린의뜰~매곡초·매곡중 사이 통학 동선. 구간 사안이라 대략 위치
+    question: `매곡동 오토효성~매곡에듀파크에일린의뜰~매곡초·매곡중으로 이어지는 학생 등·하교 동선의 보행안전 개선 요청. 매곡에듀파크에일린의뜰 입주자대표회장 명의 민원.
+현재 받은 사업계획은 윤연당 앞부터 일부 구간 보도와 횡단보도를 만드는 것으로, 통학로 개선 방향에 맞지 않는다는 문제 제기. 학생들이 아파트 지하주차장 차량 출입구와 차도를 지나 통학하고 있고, 약 5년간 개선 없이 이어져 왔으며, 약 4개월 전부터 시·구의원에게 현장 확인을 요청해 왔다고 밝힘.
+① 등교시간(오전 8시 10분)부터 하교시간까지 담당자 현장실사
+② 오토효성~에일린의뜰~매곡초·매곡중 전체 통학동선을 하나의 구간으로 보고 보행로 연속성 확보 (매곡공원과 이어지는 보도)
+③ 인도·횡단보도 사업계획과 예산안이 있다면 설치 위치와 범위를 도면·위치도로 공개
+④ 윤연당 건축으로 보행로가 중간에 끊기는 계획이라면 사업구간 재검토
+⑤ "예산 검토 중" 대신 현장실사 일정, 개선 구간, 검토 시설, 예상 사업시기를 구체적으로 회신
+⑥ 도로관리부서 단독으로 어려운 부분은 교통안전·횡단시설 부서, 관계기관과 합동 현장점검
+근거로 「도로의 구조·시설 기준에 관한 규칙」 제16조, 「보행안전 및 편의증진에 관한 법률」, 울산광역시 「보행환경 개선에 관한 조례」를 듦. 통학로·위험구간 현황도와 등하교 동영상 첨부.`,
+    answer: `민원 내용을 '매곡동 일원 보행안전 개선' 건으로 이해함. 해당 구간은 현재 예산을 확보해 실시설계용역 단계에 있으며, 제한된 예산 안에서 제기한 민원사항을 면밀히 검토해 보행안전성을 확보하도록 노력하겠음.`,
+    opinion: "",
+    next: "실시설계 결과에서 사업 범위가 전체 통학동선(오토효성~매곡초·매곡중)을 포함하는지 확인. 현장실사 여부와 도면 공개 요청(③⑤)은 회신에 답이 없어 후속 질의 필요.",
+    via: null,
+    myRole: "정리·게시 (민원인 아님)",
+    docs: [],               // 회신 원문 첨부 시 신청인·담당자 개인정보 가림
+    photos: []
+  },
+  {
     id: "2026-autovalley-exit-lane",
     category: "traffic",
     title: "오토밸리로 중산·매곡 방면 1차로 진출로, 확장하거나 좌·우회전 차로를 나눌 수 있나",
@@ -475,6 +505,7 @@ const cat = r => CATEGORY[r.category] || { icon: "📌", label: "기타", color:
 const STATUS = {
   asked:       { label: "질의 중",        stamp: "질의 중",          color: "#8A5F10" },
   answered:    { label: "답변 받음",      stamp: "답변<br>받음",      color: "#2447B8" },
+  partial:     { label: "일부만 답변",    stamp: "일부만<br>답변",    color: "#8A5F10" },
   nonexistent: { label: "정보 없음 회신", stamp: "정보 없음<br>회신", color: "#C23A2F" },
   appeal:      { label: "이의신청",       stamp: "이의<br>신청",      color: "#C23A2F" },
   silent:      { label: "답 없음",        stamp: "답 없음",          color: "#5B6472" },
@@ -491,7 +522,7 @@ const askerOf = r => r.asker || "박재진";   // 주민이 물은 기록은 ask
 const F = { dong:"", cat:"", status:"", channel:"", q:"" };
 
 /* 상단·제보 */
-const replied = RECORDS.filter(r => ["answered","nonexistent","appeal","resolved"].includes(r.status)).length;
+const replied = RECORDS.filter(r => ["answered","partial","nonexistent","appeal","resolved"].includes(r.status)).length;
 $("#badge").textContent = `질의 ${RECORDS.length}건 · 회신 ${replied}건`;
 if(SITE.youtube){ $("#lnkYT").href = SITE.youtube; $("#lnkYT").hidden = false; }
 if(SITE.facebook){ $("#lnkFB").href = SITE.facebook; $("#lnkFB").hidden = false; }
@@ -701,7 +732,7 @@ function renderPins(rows){
 }
 function stepsHTML(r){
   const k = r.status;
-  const mid = { answered:"회신", nonexistent:"정보 없음", appeal:"이의신청", silent:"답 없음" }[k] || "회신";
+  const mid = { answered:"회신", partial:"일부만 답변", nonexistent:"정보 없음", appeal:"이의신청", silent:"답 없음" }[k] || "회신";
   const cur = k === "asked" ? 0 : k === "resolved" ? 2 : 1;
   const col = st(r).color;
   return `<ol class="steps" style="--s:${col}">` + ["질의", mid, "해결"].map((t,i) =>
