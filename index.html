@@ -12,7 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{
-  --bg:#F3F5F8; --panel:#FFFFFF; --ink:#1B2230; --muted:#6B7483; --line:#E2E6EC;
+  --bg:#F3F5F8; --panel:#FFFFFF; --ink:#1B2230; --muted:#5B6472; --line:#E2E6EC;
   --brand:#2447B8; --brand-soft:#EAF0FF;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -52,6 +52,7 @@ button{font:inherit;color:inherit}
 .chip.dong{--c:#3B5BC9}
 
 .search{width:100%;margin:12px 0 10px;font:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.search::placeholder{color:#5E5E5E}
 .item{width:100%;display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;padding:12px 4px;border:0;border-top:1px solid var(--line);background:none;text-align:left;cursor:pointer}
 .item:first-of-type{border-top:0}
 .item:hover .it{color:var(--brand)}
@@ -72,8 +73,8 @@ button{font:inherit;color:inherit}
 .chan button{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(27,34,48,.14)}
 .chan button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
 .nopin{position:absolute;top:16px;right:16px;z-index:500;width:270px;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:0 4px 16px rgba(27,34,48,.16)}
-.nopin h4{margin:0 0 8px;font-size:13.5px}
-.nopin h4 small{font-weight:500;color:var(--muted)}
+.nopin h3{margin:0 0 8px;font-size:13.5px}
+.nopin h3 small{font-weight:500;color:var(--muted)}
 .nopin button{display:flex;align-items:center;gap:8px;width:100%;padding:6px 4px;border:0;background:none;text-align:left;cursor:pointer;font-size:13.5px;border-radius:8px}
 .nopin button:hover{background:var(--bg)}
 .nopin .ic{width:30px;height:30px;font-size:15px;flex:0 0 30px}
@@ -153,19 +154,54 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
 .todo{color:var(--muted);font-style:italic;font-weight:400}
 .docs a{display:block;color:var(--brand)}
 
+/* 좁은 화면: 지도 → 기록 → 현황 순서. SNS로 들어온 사람이 지도와 기록을 먼저 본다 */
 @media (max-width:900px){
   body{display:block;height:auto}
-  .top{height:auto;min-height:56px;flex-wrap:wrap;padding:10px 14px;position:sticky;top:0}
-  .top h1{font-size:18px}
-  .top nav{margin-left:0}
+  .top{height:auto;min-height:0;flex-wrap:wrap;gap:2px 10px;padding:8px 14px 2px;position:sticky;top:0}
+  .top h1{font-size:18px;white-space:normal;line-height:1.35}
+  .top nav{margin-left:-10px;width:calc(100% + 10px)}
+  .top nav a,.top nav button{min-height:44px;padding:8px 10px}
   .app{display:flex;flex-direction:column}
-  .mapbox{height:60vh}
-  .side{border-right:0}
-  .report{width:auto;left:16px;right:16px;bottom:16px}
-  .legend{display:none}
-  .nopin{position:static;width:auto;margin:12px 16px 0;box-shadow:none}
-  .chan button{padding:8px 12px;font-size:13.5px}
+  .mapbox{order:-1;height:auto;scroll-margin-top:var(--toph,96px)}
+  #map{position:relative;inset:auto;height:56vh;height:min(56svh,480px);min-height:240px}
+  .side{display:flex;flex-direction:column;padding:12px;border-right:0}
+  .side .records{order:-1}
+  .report,.legend{display:none}
+  .nopin{position:static;width:auto;margin:12px 12px 0;box-shadow:none;background:var(--panel)}
+  .nopin button{min-height:44px}
+  .chan{top:10px;left:0;right:0;padding:2px 12px 10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
+  .chan::-webkit-scrollbar{display:none}
+  .chan button{flex:0 0 auto;min-height:44px;padding:8px 14px;font-size:14px}
   .coordbox{top:auto;bottom:16px}
+  .search{font-size:16px;min-height:44px}
+  .reset{min-height:44px;padding:0 6px;margin:-12px -6px -12px 0}
+  .byk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .byk .rowf{margin:0;min-height:44px;padding:8px 10px;gap:8px}
+  .byk .chip{white-space:nowrap}
+  .byk .n::after{display:none}
+  /* 상세·제보: 아래에서 올라오는 시트 */
+  dialog{width:100%;max-width:none;max-height:92svh;margin:auto 0 0;border-radius:18px 18px 0 0}
+  .rdlg{width:100%}
+  .d-head{padding:18px 16px 14px}
+  .d-head h2{font-size:19px}
+  .stamp{width:60px;height:60px;font-size:11.5px;margin-right:44px}
+  .d-body{padding:4px 16px calc(24px + env(safe-area-inset-bottom,0px))}
+  .meta{grid-template-columns:84px minmax(0,1fr);padding:12px 14px}
+  .rbody{padding:28px 18px calc(24px + env(safe-area-inset-bottom,0px))}
+}
+@media (min-width:560px) and (max-width:900px){
+  .byk{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+}
+@media (pointer:coarse){
+  .close{width:44px;height:44px;top:8px;right:8px}
+  .leaflet-control-zoom a{width:44px!important;height:44px!important;line-height:42px!important}
+  .rrow button,.rrow a{min-height:44px;display:inline-flex;align-items:center}
+  .ppb{min-height:44px}
+}
+@media (hover:none){
+  .rowf:hover{border-color:var(--line)}
+  .rowf.active:hover{border-color:var(--brand)}
+  .mk:hover{transform:none}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -184,13 +220,13 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
 
 <div class="app">
   <aside class="side" aria-label="현황과 목록">
-    <section class="card">
+    <section class="card stats">
       <div class="card-h"><h2>질의 현황<small>(전체 기준)</small></h2><button class="reset" id="reset" hidden>필터 해제</button></div>
-      <h3>동별</h3><div id="byDong"></div>
-      <h3>분야별</h3><div id="byCat"></div>
-      <h3>상태별</h3><div id="byStatus"></div>
+      <h3>동별</h3><div class="byk" id="byDong"></div>
+      <h3>분야별</h3><div class="byk" id="byCat"></div>
+      <h3>상태별</h3><div class="byk" id="byStatus"></div>
     </section>
-    <section class="card">
+    <section class="card records">
       <div class="card-h"><h2>기록 <small id="listCount"></small></h2></div>
       <input class="search" id="q" type="search" placeholder="제목·기관으로 찾기" aria-label="검색">
       <div id="list"></div>
@@ -241,6 +277,32 @@ const SITE = {
 };
 
 const RECORDS = [
+  {
+    id: "2026-autovalley-exit-lane",
+    category: "traffic",
+    title: "오토밸리로 중산·매곡 방면 1차로 진출로, 좌·우회전 차로를 나눌 수 있나",
+    status: "asked",
+    channel: "국민신문고",
+    agencies: ["울산광역시경찰청"],
+    askedAt: "",            // 신청일 입력 (국민신문고 마이페이지)
+    answeredAt: "",
+    receiptNo: "",
+    dong: "",               // 좌표로 자동 판정
+    lat: 35.65180, lng: 129.35190, approx: true, // 약수윗마을 입체교차로(중산동로), 오토밸리로 양방향 진출로 2곳의 중간. 대략 위치, ?coords 모드로 확인 후 approx:false
+    question: `오토밸리로에서 중산 방면과 매곡 방면으로 각각 빠져나가는 일방 1차로 진출로. 좌회전·우회전 차량이 한 차로를 함께 쓰고, 출퇴근 시간에는 좌회전 차량이 왼쪽으로 붙고 우회전 차량이 오른쪽으로 빠져나가는 방식이 관행으로 굳어져 있음. 이 방식이 앞지르기 방법 위반에 해당할 수 있어 질의. 양방향 진출로 모두 확인 요청. 4개 항목.
+① 최근 1년간 두 진출로의 우측 통과(앞지르기 방법 위반) 관련 신고·처분 건수
+② 이 방식이 위반에 해당하는지, 해당한다면 어떤 조항인지
+③ 단속에 앞서 안내 현수막·표지판 등 계도 조치 검토
+④ 교통안전시설심의 등을 통한 좌·우회전 차로 분리나 노면표시 개선 가능 여부. 경찰 단독 소관이 아니면 관련 기관과 공유해 공동으로 검토하고 처리 결과까지 회신 요청
+인근 아파트 입주에 따른 교통량 증가에 대비해 울산시청에도 관련 민원을 넣은 상태.`,
+    answer: "",
+    opinion: "",
+    next: "경찰 회신 입력. 울산시청 민원 접수번호·회신 내용 함께 입력.",
+    via: null,
+    myRole: "신청자 / 해당 진출로를 이용하는 인근 주민",
+    docs: [],
+    photos: []              // 두 진출로 현장 사진
+  },
   {
     id: "2026-diache-flasher",
     category: "traffic",
@@ -400,11 +462,11 @@ const cat = r => CATEGORY[r.category] || { icon: "📌", label: "기타", color:
 
 
 const STATUS = {
-  asked:       { label: "질의 중",        stamp: "질의 중",          color: "#B7801A" },
+  asked:       { label: "질의 중",        stamp: "질의 중",          color: "#8A5F10" },
   answered:    { label: "답변 받음",      stamp: "답변<br>받음",      color: "#2447B8" },
   nonexistent: { label: "정보 없음 회신", stamp: "정보 없음<br>회신", color: "#C23A2F" },
   appeal:      { label: "이의신청",       stamp: "이의<br>신청",      color: "#C23A2F" },
-  silent:      { label: "답 없음",        stamp: "답 없음",          color: "#6B7483" },
+  silent:      { label: "답 없음",        stamp: "답 없음",          color: "#5B6472" },
   resolved:    { label: "해결",           stamp: "해결",             color: "#2F8A4E" }
 };
 const CHANNEL_ICON = { "정보공개청구":"📄", "국민신문고":"📮", "면담":"🤝" };
@@ -449,6 +511,14 @@ function match(r, skip){
       && (!F.q || (r.title + r.agencies.join(" ")).includes(F.q));
 }
 const shown = () => RECORDS.filter(r => match(r));
+const NARROW = matchMedia("(max-width:900px)");
+const CALM = matchMedia("(prefers-reduced-motion:reduce)");
+// 좁은 화면에서는 현황이 기록 아래에 있으니, 필터를 누르면 지도로 올려서 결과를 보여준다
+function showResult(){
+  if(!NARROW.matches) return;
+  document.documentElement.style.setProperty("--toph", $(".top").offsetHeight + "px");
+  $(".mapbox").scrollIntoView({ block:"start", behavior: CALM.matches ? "auto" : "smooth" });
+}
 function setF(k, v){ F[k] = (F[k] === v ? "" : v); render(); if(k === "dong") focusDong(); }
 
 function rowsHTML(kind, entries){
@@ -466,10 +536,10 @@ function renderStats(){
   $("#reset").hidden = !Object.values(F).some(Boolean);
 }
 $(".side").addEventListener("click", e => {
-  const b = e.target.closest(".rowf"); if(b) return setF(b.dataset.k, b.dataset.v);
+  const b = e.target.closest(".rowf"); if(b){ setF(b.dataset.k, b.dataset.v); return showResult(); }
   const it = e.target.closest(".item"); if(it) openDetail(it.dataset.id, true);
 });
-$("#reset").onclick = () => { Object.keys(F).forEach(k => F[k] = ""); $("#q").value = ""; render(); focusDong(); };
+$("#reset").onclick = () => { Object.keys(F).forEach(k => F[k] = ""); $("#q").value = ""; render(); focusDong(); showResult(); };
 $("#q").addEventListener("input", e => { F.q = e.target.value.trim(); render(); });
 
 function renderList(rows){
@@ -596,7 +666,7 @@ function renderPins(rows){
   });
   const off = rows.filter(r => r.lat == null || r.lng == null);
   $("#nopin").hidden = !off.length;
-  $("#nopin").innerHTML = off.length ? `<h4>지도에 위치가 없는 기록 <small>${off.length}건</small></h4>` + off.map(r => { const c = cat(r);
+  $("#nopin").innerHTML = off.length ? `<h3>지도에 위치가 없는 기록 <small>${off.length}건</small></h3>` + off.map(r => { const c = cat(r);
     return `<button type="button" data-id="${esc(r.id)}"><span class="ic" style="--c:${c.color}">${c.icon}</span><span class="t">${esc(r.title)}</span></button>`; }).join("") : "";
   groups.forEach(g => {
     g.forEach((x, i) => {                   // 겹치면 원형으로 살짝 벌려서 전부 보이게
@@ -609,7 +679,8 @@ function renderPins(rows){
       L.marker([r.lat, r.lng], { icon: L.divIcon({ className:"", iconSize:[42,42], iconAnchor:[21-dx, 21-dy], popupAnchor:[dx, dy-18], tooltipAnchor:[dx, dy-18], html: pinHTML(r) }),
           title:r.title, riseOnHover:true, keyboard:true })
         .bindTooltip(`${c.icon} ${esc(r.title)}`, { direction:"top" })
-        .bindPopup(popupHTML(r), { maxWidth:320, minWidth:260, className:"pp", autoPanPaddingTopLeft:[20,100], autoPanPaddingBottomRight:[300,20] })
+        .bindPopup(popupHTML(r), { maxWidth:320, minWidth:260, className:"pp",   // 넓은 화면은 오른쪽 아래 제보 상자만큼 비워 둔다
+          autoPanPaddingTopLeft: NARROW.matches ? [12,64] : [20,100], autoPanPaddingBottomRight: NARROW.matches ? [12,12] : [300,20] })
         .addTo(pins);
     });
   });
