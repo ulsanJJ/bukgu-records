@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>울산 북구의 박재진이 물어 본 기록</title>
+<title>울산 북구 주민이 물어 본 기록</title>
 <meta name="description" content="울산 북구 현안을 행정기관에 묻고 받은 답을 지도에서 확인하세요.">
-<meta property="og:title" content="울산 북구의 박재진이 물어 본 기록">
+<meta property="og:title" content="울산 북구 주민이 물어 본 기록">
 <meta property="og:description" content="울산 북구 현안을 행정기관에 묻고 받은 답을 지도에서 확인하세요.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -209,7 +209,7 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
 <body>
 
 <header class="top">
-  <h1>울산 북구의 박재진이 물어 본 기록</h1>
+  <h1>울산 북구 주민이 물어 본 기록</h1>
   <span class="badge" id="badge"></span>
   <nav>
     <a id="lnkYT" href="#" target="_blank" rel="noopener" hidden>▶ 유튜브</a>
@@ -232,9 +232,11 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
       <div id="list"></div>
     </section>
     <div class="rules">
+      <p>기록 정리: 박재진</p>
+      <p>기록마다 누가 물었는지 밝힙니다. 제가 요청자·당사자인 사안도 항목마다 밝힙니다.</p>
+      <p>주민이 물은 기록은 본인 동의를 받고, 회신 원문을 확인한 것만 올립니다.</p>
       <p>기관이 회신한 내용과 제 평가는 칸을 나눠 적습니다.</p>
-      <p>제가 요청자·당사자인 사안은 항목마다 밝힙니다.</p>
-      <p>회신 원문은 담당자 개인정보를 가리고 첨부합니다.</p>
+      <p>회신 원문은 신청인과 담당자의 개인정보를 가리고 첨부합니다.</p>
     </div>
   </aside>
 
@@ -257,7 +259,7 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
   <div class="rbody">
     <div class="remoji" aria-hidden="true">✉️</div>
     <h2 id="rTitle">북구에 물어볼 일을 알려주세요</h2>
-    <p class="rsub">동네에서 불편한 점, 행정기관에 묻고 싶은 것을 보내주시면 직접 확인해 기록으로 남기겠습니다.</p>
+    <p class="rsub">행정기관에 물어서 받은 회신이 있으면 원문(캡처)과 함께 보내주세요. 확인 후 동의를 받아 기록으로 올립니다. 아직 묻지 않은 불편한 점은 제가 직접 물어 기록하겠습니다.</p>
     <div id="rList"></div>
   </div>
 </dialog>
@@ -268,6 +270,8 @@ dialog::backdrop{background:rgba(27,34,48,.45)}
    데이터: 이 부분만 고치면 사이트가 바뀝니다.
    모르는 값은 "" → 화면에 "입력 전". 위치 모르면 lat/lng null.
    좌표 찍기: 주소 뒤에 ?coords 붙여서 열고 지도 클릭.
+   asker: 물은 사람. 비워 두면 "박재진". 주민 기록은 "주민"(실명 동의 시 이름).
+          주민 기록은 본인 동의 + 회신 원문 확인 후에만 올린다.
    ============================================================ */
 const SITE = {
   phone: "",    // 예: "010-0000-0000"
@@ -483,6 +487,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const orTodo = v => v ? esc(v) : '<span class="todo">입력 전</span>';
 const st = r => STATUS[r.status] || STATUS.asked;
+const askerOf = r => r.asker || "박재진";   // 주민이 물은 기록은 asker: "주민" (실명 동의 시 이름)
 const F = { dong:"", cat:"", status:"", channel:"", q:"" };
 
 /* 상단·제보 */
@@ -560,6 +565,7 @@ function renderList(rows){
           <span class="st" style="--s:${s.color}">${esc(s.label)}</span>
           <span>${esc(r.agencies.join(", "))}</span>
           <span>${r.askedAt ? esc(r.askedAt.replaceAll("-",".")) : "날짜 입력 전"}</span>
+          ${askerOf(r) !== "박재진" ? `<span class="via">주민이 물음</span>` : ""}
           ${r.via ? `<span class="via">${esc(r.via.name)} ${esc(r.via.role)} 통해 해결 중</span>` : ""}
         </span>
       </span>
@@ -591,6 +597,7 @@ function openDetail(id, fly){
       ${stepsHTML(r)}
       ${photosHTML(r)}
       <dl class="meta">
+        <dt>물은 사람</dt><dd>${esc(askerOf(r))}</dd>
         <dt>질의 경로</dt><dd>${orTodo(r.channel)}</dd>
         <dt>대상 기관</dt><dd>${orTodo(r.agencies.join(", "))}</dd>
         <dt>질의일</dt><dd>${orTodo(r.askedAt)}</dd>
