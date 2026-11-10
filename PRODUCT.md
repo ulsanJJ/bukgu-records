@@ -18,11 +18,11 @@ web
 
 ## Positioning
 
-The site is a record of questions and answers, not a list of accomplishments. Each record keeps who asked, the question, the agency's reply as received, 박재진's own assessment, and his relationship to the case in separate fields, with the original reply documents attached where available. A campaign page or news summary can't copy that structure honestly.
+The site is a record of questions and answers, not a list of accomplishments. Each record keeps who asked, the question, the agency's reply as received, and 박재진's own assessment in separate fields, with the original reply documents attached where available. A campaign page or news summary can't copy that structure honestly.
 
 ## Operating Context
 
-- Channels: 국민신문고, 정보공개청구 (with receipt numbers), 면담.
+- Channels: 국민신문고, 정보공개청구, 면담.
 - Record lifecycle (`STATUS`): 질의 중 → 답변 받음 / 정보 없음 회신 / 이의신청 / 답 없음 → 해결.
 - Who asked (`asker`): empty means 박재진. Resident records use "주민", or the resident's name only with their consent. Resident records are published only with the resident's consent and after the original reply has been checked; 박재진 organizes and publishes them. Residents who have a problem but no reply yet are handled by 박재진 asking the agency himself.
 - Records are placed by coordinates, and the 행정동 is detected automatically from the 북구 boundary data (vuski/admdongkor). Issues that cover all of 북구, or have no fixed location, are listed outside the map.
@@ -43,9 +43,9 @@ The site is a record of questions and answers, not a list of accomplishments. Ea
 ## Brand Commitments
 
 - Site name: 「울산 북구 주민이 물어 본 기록」. 박재진 is shown as the one who organizes the records (기록 정리: 박재진).
-- Voice: first person (제가, 저와의 관계), plain and factual, the language of a record rather than an advocate.
+- Voice: first person (제가), plain and factual, the language of a record rather than an advocate.
 - Published rules, shown on the site, that future work must keep:
-  - 기록마다 누가 물었는지 밝힙니다. 제가 요청자·당사자인 사안도 항목마다 밝힙니다.
+  - 기록마다 누가 물었는지 밝힙니다.
   - 주민이 물은 기록은 본인 동의를 받고, 회신 원문을 확인한 것만 올립니다.
   - 기관이 회신한 내용과 제 평가는 칸을 나눠 적습니다.
   - 회신 원문은 신청인과 담당자의 개인정보를 가리고 첨부합니다.
@@ -66,3 +66,4 @@ The site is a record of questions and answers, not a list of accomplishments. Ea
 ## Accessibility & Inclusion
 
 Korean-language audience covering all ages of 북구 residents, including older readers, so keep text legible on small screens and controls easy to tap. Target **WCAG 2.1 AA**: text contrast at least 4.5:1 (3:1 for large text), and heading levels must not skip.
+- Receipt numbers and 박재진's relationship to each case are not published (removed 2026-11-11).
