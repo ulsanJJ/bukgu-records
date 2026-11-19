@@ -106,6 +106,8 @@ button{font:inherit;color:inherit}
 .ppc p{margin:8px 0 10px;color:#3A4352}
 .ppb{width:100%;padding:9px;border:0;border-radius:10px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
 .ppb:hover{filter:brightness(1.1)}
+.pp .leaflet-popup-content{overscroll-behavior:contain}
+.ppc .ppb{position:sticky;bottom:0;box-shadow:0 -8px 12px #fff}
 .steps{list-style:none;margin:12px 0 4px;padding:12px 8px 8px;display:flex;border:1px solid var(--line);border-radius:12px;background:#FAFBFC}
 .steps li{flex:1;position:relative;text-align:center;font-size:13px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
 .steps li::before{content:"";position:absolute;top:8px;left:-50%;width:100%;height:2px;background:var(--line);z-index:0}
@@ -734,6 +736,7 @@ function initMap(){
   pins = L.layerGroup().addTo(map);
   map.on("zoomend", () => renderPins(lastRows));
   map.on("popupclose", () => popupClosedAt = Date.now());
+  map.on("popupopen", e => L.DomEvent.disableScrollPropagation(e.popup.getElement())); // 팝업 안 휠은 지도 확대가 아니라 팝업 스크롤
   map.getContainer().addEventListener("click", e => { const b = e.target.closest(".ppb"); if(b){ map.closePopup(); openDetail(b.dataset.id, false); } });
   map.fitBounds(dongLayer.getBounds(), { padding:[20,20] });
   if(COORDS){
@@ -788,7 +791,7 @@ function renderPins(rows){
       L.marker([r.lat, r.lng], { icon: L.divIcon({ className:"", iconSize:[42,42], iconAnchor:[21-dx, 21-dy], popupAnchor:[dx, dy-18], tooltipAnchor:[dx, dy-18], html: pinHTML(r) }),
           title:r.title, riseOnHover:true, keyboard:true })
         .bindTooltip(`${c.icon} ${esc(r.title)}`, { direction:"top" })
-        .bindPopup(popupHTML(r), { maxWidth:320, minWidth:260, className:"pp",   // 넓은 화면은 오른쪽 아래 제보 상자만큼 비워 둔다
+        .bindPopup(popupHTML(r), { maxWidth:320, minWidth:260, className:"pp", maxHeight: Math.max(240, map.getSize().y - (NARROW.matches ? 90 : 150)), // 지도보다 길면 팝업 안에서 스크롤   // 넓은 화면은 오른쪽 아래 제보 상자만큼 비워 둔다
           autoPanPaddingTopLeft: NARROW.matches ? [12,64] : [20,100], autoPanPaddingBottomRight: NARROW.matches ? [12,12] : [300,20] })
         .addTo(pins);
     });
